@@ -19,7 +19,7 @@ public class loadingScreen : MonoBehaviour
 
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("PlayTest");
 
-        asyncLoad.allowSceneActivation = false; // stop the level from activating 
+        asyncLoad.allowSceneActivation = false; // pause the level from activating 
 
         // Wait until the asynchronous scene fully loads
         while (!asyncLoad.isDone)
@@ -34,8 +34,8 @@ public class loadingScreen : MonoBehaviour
             }
 
             yield return null;
-            yield return new WaitForSeconds(3);
-            asyncLoad.allowSceneActivation = true;
+            //yield return new WaitForSeconds(3); // for DEBUG
+            asyncLoad.allowSceneActivation = true; //activate level
         }
     }
 }
