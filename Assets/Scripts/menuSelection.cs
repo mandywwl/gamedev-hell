@@ -4,7 +4,7 @@ using System.Collections;
 
 public class menuSelection : MonoBehaviour
 {
-    //Menu States
+    //Menu States hi
     public enum MenuStates { Main, Settings};
     public MenuStates currentstate;
 
