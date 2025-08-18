@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using TMPro;
 using NUnit.Framework;
 
@@ -12,7 +15,10 @@ public class settingsManager : MonoBehaviour
     public TMP_Dropdown QualityDropDown;
 
     public Slider Brightness;
-    public Slider Volume;
+    [SerializeField] private VolumeProfile brightnessProfile;
+    private ColorAdjustments colourAdj;
+
+    public Slider Sound;
 
     Resolution[] AllResolutions;
     bool IsFullScreen;
@@ -22,6 +28,24 @@ public class settingsManager : MonoBehaviour
     int SelectedQuality;
     List<string> SelectedQualityList = new List<string>();
     string[] AllQualitynames;
+
+    void Awake()
+    {
+        if (brightnessProfile == null)
+        {
+            Debug.LogError("No Volume Profile assigned!");
+            return;
+        }
+
+        if (!brightnessProfile.TryGet(out colourAdj))
+        {
+            Debug.LogError("BrightnessSetting profile has no ColorAdjustments override!");
+            return;
+        }
+
+        colourAdj.postExposure.overrideState = true;
+        colourAdj.postExposure.value = PlayerPrefs.GetFloat("brightness", 0f);
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -61,7 +85,10 @@ public class settingsManager : MonoBehaviour
     public void ChangeQuality()
     {
         PlayerPrefs.SetInt("quality", QualityDropDown.value);
-        QualitySettings.SetQualityLevel(PlayerPrefs.GetInt("quality"));
+        SelectedQuality = QualityDropDown.value;
+        QualitySettings.SetQualityLevel(SelectedQuality, true);
+
+        //Debug.Log("Quality settings: " + QualitySettings.GetQualityLevel());
     }
 
     public void ChangeFullScreen()
@@ -74,14 +101,15 @@ public class settingsManager : MonoBehaviour
     public void ChangeBrightness()
     {
         PlayerPrefs.SetFloat("brightness", Brightness.value);
-        Screen.brightness = PlayerPrefs.GetFloat("brightness");
+        colourAdj.postExposure.value = PlayerPrefs.GetFloat("brightness");
+        Debug.Log("Brightness: " + colourAdj.postExposure.value);
     }
 
-    public void ChangeVolume()
+    public void ChangeSound()
     {
-        PlayerPrefs.SetFloat("volume", Volume.value);
-        AudioListener.volume = PlayerPrefs.GetFloat("volume");
-        // REMEMBER TO ADD THIS TO EVERY SCENE ----> AudioListener.volume = PlayerPrefs.GetFloat("volume");
+        PlayerPrefs.SetFloat("sound", Sound.value);
+        AudioListener.volume = PlayerPrefs.GetFloat("sound");
+        // REMEMBER TO ADD THIS TO EVERY SCENE ----> AudioListener.volume = PlayerPrefs.GetFloat("sound");
     }
 
     // Update is called once per frame
