@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Blood_Blur_1_0: 7857098303750145076
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
