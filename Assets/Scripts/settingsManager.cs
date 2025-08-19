@@ -1,11 +1,9 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using TMPro;
-using NUnit.Framework;
 
 public class settingsManager : MonoBehaviour
 {
@@ -29,6 +27,8 @@ public class settingsManager : MonoBehaviour
     List<string> SelectedQualityList = new List<string>();
     string[] AllQualitynames;
 
+    public static settingsManager Instance { get; private set; }
+
     void Awake()
     {
         if (brightnessProfile == null)
@@ -44,7 +44,15 @@ public class settingsManager : MonoBehaviour
         }
 
         colourAdj.postExposure.overrideState = true;
-        colourAdj.postExposure.value = PlayerPrefs.GetFloat("brightness", 0f);
+
+        if (Instance != null && Instance != this) 
+        { 
+            Destroy(gameObject); 
+            return; 
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -75,46 +83,55 @@ public class settingsManager : MonoBehaviour
 
     }
 
-    public void ChangeResolution()
+    public void ChangeResolution(int index)
     {
-        PlayerPrefs.SetInt("resolution", ResDropDown.value);
-        SelectedResolution = ResDropDown.value;
+        if (SelectedResolutionList == null || SelectedResolutionList.Count == 0) return;
+
+        PlayerPrefs.SetInt("resolution", index);
+        SelectedResolution = index;
         Screen.SetResolution(SelectedResolutionList[SelectedResolution].width, SelectedResolutionList[SelectedResolution].height, IsFullScreen);
+
+        PlayerPrefs.Save();
     }
 
-    public void ChangeQuality()
+    public void ChangeQuality(int index)
     {
-        PlayerPrefs.SetInt("quality", QualityDropDown.value);
-        SelectedQuality = QualityDropDown.value;
+        PlayerPrefs.SetInt("quality", index);
+        SelectedQuality = index;
         QualitySettings.SetQualityLevel(SelectedQuality, true);
 
-        //Debug.Log("Quality settings: " + QualitySettings.GetQualityLevel());
+        PlayerPrefs.Save();
     }
 
-    public void ChangeFullScreen()
+    public void ChangeFullScreen(bool isOn)
     {
-        IsFullScreen = FullScreenToggle.isOn;
+        IsFullScreen = isOn;
         PlayerPrefs.SetString("togglefullscreen", IsFullScreen.ToString());
         Screen.SetResolution(SelectedResolutionList[SelectedResolution].width, SelectedResolutionList[SelectedResolution].height, IsFullScreen);
+
+        PlayerPrefs.Save();
     }
 
-    public void ChangeBrightness()
+    public void ChangeBrightness(float value1)
     {
-        PlayerPrefs.SetFloat("brightness", Brightness.value);
+        PlayerPrefs.SetFloat("brightness", value1);
         colourAdj.postExposure.value = PlayerPrefs.GetFloat("brightness");
-        Debug.Log("Brightness: " + colourAdj.postExposure.value);
+
+        PlayerPrefs.Save();
     }
 
-    public void ChangeSound()
+    public void ChangeSound(float value1)
     {
-        PlayerPrefs.SetFloat("sound", Sound.value);
+        PlayerPrefs.SetFloat("sound", value1);
         AudioListener.volume = PlayerPrefs.GetFloat("sound");
         // REMEMBER TO ADD THIS TO EVERY SCENE ----> AudioListener.volume = PlayerPrefs.GetFloat("sound");
+
+        PlayerPrefs.Save();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }
