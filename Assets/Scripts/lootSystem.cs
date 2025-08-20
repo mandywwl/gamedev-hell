@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
 
@@ -121,8 +119,6 @@ public class LootSystem : MonoBehaviour
                  (item.hasDurability ? $" (Durability: {item.GetDurabilityPercentage():F1}%)" : ""));
     }
 
-    // Add these methods to your existing LootSystem class:
-
     // Method for combat system to reward items after combat
     public void GiveCombatRewards(string[] lootTableNames)
     {
@@ -208,6 +204,7 @@ public class LootSystem : MonoBehaviour
     {
         CreateCombatLootTables();
     }
+
     public void GiveLootToPlayer(string lootTableName)
     {
         LootTable table = System.Array.Find(lootTables, lt => lt.tableName == lootTableName);
