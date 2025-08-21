@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 public class PauseMenu : MonoBehaviour
 {
-    public bool isPaused; //track pause state
+    [HideInInspector] public bool isPaused; //track pause state
 
     [SerializeField] public GameObject pausePanel;    
     [SerializeField] public GameObject settingsMenu; 
