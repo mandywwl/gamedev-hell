@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+
 public class LootSystem : MonoBehaviour
 {
     public static LootSystem Instance { get; private set; }
@@ -17,17 +18,40 @@ public class LootSystem : MonoBehaviour
     public float lootPickupRange = 2f;
     public LayerMask playerLayer = 1;
 
+    [Header("Procedural Generation Settings")]
+    public int runSeed = 0; // 0 = random seed each run
+    public float rarityModifier = 1f; // Higher = more rare items
+    public bool enableProceduralModification = true;
+    
+    // Run-specific tracking
+    private Dictionary<int, int> spawnedItemCounts = new Dictionary<int, int>();
+    private System.Random runRandom;
+
     void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
+            InitializeRun();
             CreateSampleItems();
         }
         else
         {
             Destroy(gameObject);
         }
+    }
+
+    // Initialize each run with unique characteristics
+    private void InitializeRun()
+    {
+        // Set up random seed for this run
+        if (runSeed == 0)
+        {
+            runSeed = Random.Range(1, 999999);
+        }
+        runRandom = new System.Random(runSeed);
+        
+        Debug.Log($"Run initialized with seed: {runSeed}");
     }
 
     public void DropLoot(string lootTableName, Vector3 dropPosition)
@@ -41,28 +65,125 @@ public class LootSystem : MonoBehaviour
 
         foreach (var drop in table.lootDrops)
         {
-            float roll = Random.Range(0f, 100f);
+            // Use run-specific random for consistent results
+            float roll = (float)runRandom.NextDouble() * 100f;
             if (roll <= drop.dropChance)
             {
                 Item item = System.Array.Find(itemDatabase, i => i.id == drop.itemId);
                 if (item != null)
                 {
-                    int quantity = Random.Range(drop.minQuantity, drop.maxQuantity + 1);
+                    // Check run limits before spawning
+                    if (!CanSpawnItem(item))
+                    {
+                        Debug.Log($"Skipping {item.itemName} - run limit reached");
+                        continue;
+                    }
+
+                    int quantity = runRandom.Next(drop.minQuantity, drop.maxQuantity + 1);
 
                     // For weapons with durability, randomize condition
                     if (item.hasDurability)
                     {
                         Item droppedItem = CreateItemCopy(item);
-                        droppedItem.currentDurability = Random.Range(drop.minDurability, drop.maxDurability);
+                        droppedItem.currentDurability = (float)runRandom.NextDouble() * 
+                                                       (drop.maxDurability - drop.minDurability) + 
+                                                       drop.minDurability;
+                        
+                        // Apply procedural modifications
+                        if (enableProceduralModification)
+                        {
+                            droppedItem = ApplyProceduralModification(droppedItem);
+                        }
+                        
                         CreateLootDrop(droppedItem, quantity, dropPosition);
                     }
                     else
                     {
                         CreateLootDrop(item, quantity, dropPosition);
                     }
+                    
+                    // Track spawned items
+                    spawnedItemCounts[item.id] = spawnedItemCounts.GetValueOrDefault(item.id, 0) + quantity;
                 }
             }
         }
+    }
+
+    // Check if item can spawn based on run limits
+    private bool CanSpawnItem(Item item)
+    {
+        if (item.isUnique && spawnedItemCounts.ContainsKey(item.id))
+        {
+            return false;
+        }
+        
+        if (item.maxPerRun > 0)
+        {
+            int currentCount = spawnedItemCounts.GetValueOrDefault(item.id, 0);
+            return currentCount < item.maxPerRun;
+        }
+        
+        return true;
+    }
+
+    // Apply procedural modifications to make items unique each run
+    private Item ApplyProceduralModification(Item originalItem)
+    {
+        if (!originalItem.canBeModified) return originalItem;
+        
+        // Generate random stat modifier
+        float statModifier = (float)runRandom.NextDouble() * 
+                           (originalItem.maxStatModifier - originalItem.minStatModifier) + 
+                           originalItem.minStatModifier;
+        
+        // Create modifier suffix
+        string suffix = "";
+        if (statModifier > 1.15f)
+            suffix = " [Superior]";
+        else if (statModifier > 1.05f)
+            suffix = " [Enhanced]";
+        else if (statModifier < 0.85f)
+            suffix = " [Worn]";
+        else if (statModifier < 0.95f)
+            suffix = " [Damaged]";
+        
+        return originalItem.CreateModifiedCopy(statModifier, suffix);
+    }
+
+    // Generate Rarity based items 
+    public Item GenerateQualityItem(ItemCategory category = ItemCategory.Weapons)
+    {
+        var availableItems = itemDatabase.Where(item => item.category == category).ToArray();
+        if (availableItems.Length == 0) return null;
+        
+        // Roll for rarity
+        float rarityRoll = (float)runRandom.NextDouble() * 100f / rarityModifier;
+        ItemRarity targetRarity;
+        
+        if (rarityRoll <= 1f) targetRarity = ItemRarity.Anomalous;
+        else if (rarityRoll <= 5f) targetRarity = ItemRarity.Prototype;
+        else if (rarityRoll <= 15f) targetRarity = ItemRarity.ExpeditionGrade;
+        else if (rarityRoll <= 40f) targetRarity = ItemRarity.Standard;
+        else targetRarity = ItemRarity.Makeshift;
+        
+        // Find item of target rarity or closest
+        var rarityItems = availableItems.Where(item => item.rarity == targetRarity).ToArray();
+        if (rarityItems.Length == 0)
+        {
+            // Fallback to any item
+            rarityItems = availableItems;
+        }
+        
+        Item selectedItem = rarityItems[runRandom.Next(rarityItems.Length)];
+        
+        // Apply procedural modifications
+        if (enableProceduralModification)
+        {
+            selectedItem = ApplyProceduralModification(selectedItem);
+        }
+        
+        Debug.Log($"Generated {targetRarity} item: {selectedItem.itemName}");
+        return selectedItem;
     }
 
     public void DropSpecificItem(Item item, int quantity, Vector3 dropPosition, float durabilityPercentage = 100f)
@@ -96,6 +217,9 @@ public class LootSystem : MonoBehaviour
             SpriteRenderer renderer = lootDrop.AddComponent<SpriteRenderer>();
             renderer.sprite = item.icon;
             renderer.sortingOrder = 10;
+            
+            // Color loot drops by rarity
+            renderer.color = item.GetRarityColor();
         }
 
         // Use 3D collider instead of 2D for isometric
@@ -212,18 +336,20 @@ public class LootSystem : MonoBehaviour
 
         foreach (var drop in table.lootDrops)
         {
-            float roll = Random.Range(0f, 100f);
+            float roll = (float)runRandom.NextDouble() * 100f;
             if (roll <= drop.dropChance)
             {
                 Item item = System.Array.Find(itemDatabase, i => i.id == drop.itemId);
                 if (item != null)
                 {
-                    int quantity = Random.Range(drop.minQuantity, drop.maxQuantity + 1);
+                    int quantity = runRandom.Next(drop.minQuantity, drop.maxQuantity + 1);
 
                     if (item.hasDurability)
                     {
                         Item rewardItem = CreateItemCopy(item);
-                        rewardItem.currentDurability = Random.Range(drop.minDurability, drop.maxDurability);
+                        rewardItem.currentDurability = (float)runRandom.NextDouble() * 
+                                                      (drop.maxDurability - drop.minDurability) + 
+                                                      drop.minDurability;
                         InventorySystem.Instance.AddItem(rewardItem, quantity);
                     }
                     else
@@ -272,41 +398,42 @@ public class LootSystem : MonoBehaviour
     {
         List<Item> items = new List<Item>();
 
-        // Create Weapons
-        items.Add(CreateWeapon(1, "M4A1", "Assault rifle", ItemType.M4A1, 30, ItemType.Ammo_556x45_NATO, 35, 3.5f, 50f));
-        items.Add(CreateWeapon(2, "FN SCAR-MK17", "Heavy Assault rifle", ItemType.FN_SCAR_MK17, 45, ItemType.Ammo_762x51_NATO, 20, 2.8f, 60f));
-        items.Add(CreateWeapon(3, "Compound Bow", "Silent ranged weapon", ItemType.CompoundBow, 25, ItemType.Arrows, 1, 1.5f, 40f));
-        items.Add(CreateWeapon(4, "Fire Axe", "Heavy melee weapon", ItemType.Fire_Axe, 40, ItemType.Misc, 0, 1.2f, 2f));
-        items.Add(CreateWeapon(5, "Crowbar", "Versatile melee tool", ItemType.Crowbar, 25, ItemType.Misc, 0, 1.8f, 1.5f));
+        // Create Weapons with NEW properties
+        items.Add(CreateWeapon(1, "M4A1", "Assault rifle", ItemType.M4A1, 30, ItemType.Ammo_556x45_NATO, 35, 3.5f, 50f, ItemRarity.Makeshift, 4f, false, -1));
+        items.Add(CreateWeapon(2, "FN SCAR-MK17", "Heavy Assault rifle", ItemType.FN_SCAR_MK17, 45, ItemType.Ammo_762x51_NATO, 20, 2.8f, 60f, ItemRarity.ExpeditionGrade, 6f, false, 2));
+        items.Add(CreateWeapon(3, "Compound Bow", "Silent ranged weapon", ItemType.CompoundBow, 25, ItemType.Arrows, 1, 1.5f, 40f, ItemRarity.Standard, 3f, false, -1));
+        items.Add(CreateWeapon(4, "Fire Axe", "Heavy melee weapon", ItemType.Fire_Axe, 40, ItemType.Misc, 0, 1.2f, 2f, ItemRarity.Makeshift, 5f, false, -1));
+        items.Add(CreateWeapon(5, "Crowbar", "Versatile melee tool", ItemType.Crowbar, 25, ItemType.Misc, 0, 1.8f, 1.5f, ItemRarity.Makeshift, 2f, false, -1));
 
         // Create Ammunition
-        items.Add(CreateAmmo(10, "5.56x45 NATO", "Standard rifle ammunition", ItemType.Ammo_556x45_NATO, 999));
-        items.Add(CreateAmmo(11, "7.62x51 NATO", "Heavy rifle ammunition", ItemType.Ammo_762x51_NATO, 999));
-        items.Add(CreateAmmo(12, "Arrows", "Arrows for bows", ItemType.Arrows, 99));
-        items.Add(CreateAmmo(13, "Crossbow Bolts", "Bolts for crossbows", ItemType.Crossbow_Bolts, 99));
+        items.Add(CreateAmmo(10, "5.56x45 NATO", "Standard rifle ammunition", ItemType.Ammo_556x45_NATO, 999, 0.1f));
+        items.Add(CreateAmmo(11, "7.62x51 NATO", "Heavy rifle ammunition", ItemType.Ammo_762x51_NATO, 999, 0.15f));
+        items.Add(CreateAmmo(12, "Arrows", "Arrows for bows", ItemType.Arrows, 99, 0.05f));
+        items.Add(CreateAmmo(13, "Crossbow Bolts", "Bolts for crossbows", ItemType.Crossbow_Bolts, 99, 0.08f));
 
         // Create Armor
-        items.Add(CreateArmor(20, "Survivor Outfit", "Basic protective clothing", ItemType.SurvivorOutfit, 5));
-        items.Add(CreateArmor(21, "Bruiser Jacket", "Reinforced leather jacket", ItemType.BruiserJacket, 12));
-        items.Add(CreateArmor(22, "Anomaly Hoodie", "Strange protective garment", ItemType.AnomalyHoodie, 8));
+        items.Add(CreateArmor(20, "Survivor Outfit", "Basic protective clothing", ItemType.SurvivorOutfit, 5, 2f));
+        items.Add(CreateArmor(21, "Bruiser Jacket", "Reinforced leather jacket", ItemType.BruiserJacket, 12, 4f));
+        items.Add(CreateArmor(22, "Anomaly Hoodie", "Strange protective garment", ItemType.AnomalyHoodie, 8, 3f));
 
         // Create Consumables
-        items.Add(CreateConsumable(30, "Bandages", "Basic medical supplies", ItemType.Bandages, 25, 0, 20));
-        items.Add(CreateConsumable(31, "Medical Serum", "Advanced healing compound", ItemType.MedicalSerum, 75, 0, 10));
-        items.Add(CreateConsumable(32, "Sanity Pills", "Helps maintain mental stability", ItemType.SanityPills, 0, 50, 15));
-        items.Add(CreateConsumable(33, "Anomaly Pills", "Mysterious mental enhancement", ItemType.AnomalyPills, 10, 25, 8));
+        items.Add(CreateConsumable(30, "Bandages", "Basic medical supplies", ItemType.Bandages, 25, 0, 20, 0.2f));
+        items.Add(CreateConsumable(31, "Medical Serum", "Advanced healing compound", ItemType.MedicalSerum, 75, 0, 10, 0.3f, true, 5));
+        items.Add(CreateConsumable(32, "Sanity Pills", "Helps maintain mental stability", ItemType.SanityPills, 0, 50, 15, 0.1f));
+        items.Add(CreateConsumable(33, "Anomaly Pills", "Mysterious mental enhancement", ItemType.AnomalyPills, 10, 25, 8, 0.15f, true, 3));
 
         // Create Key Items
-        items.Add(CreateKeyItem(40, "Keycard", "Electronic access card"));
-        items.Add(CreateKeyItem(41, "Map", "Shows the local area"));
-        items.Add(CreateKeyItem(42, "Expedition Log", "Records of previous explorers"));
+        items.Add(CreateKeyItem(40, "Keycard", "Electronic access card", true, 1));
+        items.Add(CreateKeyItem(41, "Map", "Shows the local area", false, 2));
+        items.Add(CreateKeyItem(42, "Expedition Log", "Records of previous explorers", false, 3));
 
         itemDatabase = items.ToArray();
         Debug.Log($"Created {items.Count} sample items for the database.");
     }
 
-    private Item CreateWeapon(int id, string name, string description, ItemType type, int damage, ItemType ammoType, int magSize, float fireRate, float range)
+    private Item CreateWeapon(int id, string name, string description, ItemType type, int damage, ItemType ammoType, int magSize, float fireRate, float range, ItemRarity rarity, float weight, bool isUnique, int maxPerRun)
     {
+        // Properties of weapons
         Item weapon = new Item(id, name, description, ItemCategory.Weapons, type);
         weapon.attackPower = damage;
         weapon.requiredAmmoType = ammoType;
@@ -315,28 +442,37 @@ public class LootSystem : MonoBehaviour
         weapon.range = range;
         weapon.sellPrice = damage * 25;
         weapon.buyPrice = damage * 50;
+        weapon.rarity = rarity;
+        weapon.weight = weight;
+        weapon.isUnique = isUnique;
+        weapon.maxPerRun = maxPerRun;
+        
         return weapon;
     }
 
-    private Item CreateAmmo(int id, string name, string description, ItemType type, int maxStack)
+    private Item CreateAmmo(int id, string name, string description, ItemType type, int maxStack, float weight)
     {
         Item ammo = new Item(id, name, description, ItemCategory.Materials, type);
         ammo.maxStackSize = maxStack;
         ammo.sellPrice = 1;
         ammo.buyPrice = 3;
+        ammo.weight = weight;
+        ammo.rarity = ItemRarity.Standard;
         return ammo;
     }
 
-    private Item CreateArmor(int id, string name, string description, ItemType type, int defense)
+    private Item CreateArmor(int id, string name, string description, ItemType type, int defense, float weight)
     {
         Item armor = new Item(id, name, description, ItemCategory.Armor, type);
         armor.defensePower = defense;
         armor.sellPrice = defense * 20;
         armor.buyPrice = defense * 40;
+        armor.weight = weight;
+        armor.rarity = ItemRarity.Standard;
         return armor;
     }
 
-    private Item CreateConsumable(int id, string name, string description, ItemType type, int hp, int sanity, int maxStack)
+    private Item CreateConsumable(int id, string name, string description, ItemType type, int hp, int sanity, int maxStack, float weight, bool isUnique = false, int maxPerRun = -1)
     {
         Item consumable = new Item(id, name, description, ItemCategory.Consumables, type);
         consumable.isConsumable = true;
@@ -347,13 +483,21 @@ public class LootSystem : MonoBehaviour
         consumable.maxStackSize = maxStack;
         consumable.sellPrice = (hp + sanity) / 3;
         consumable.buyPrice = (hp + sanity);
+        consumable.weight = weight;
+        consumable.isUnique = isUnique;
+        consumable.maxPerRun = maxPerRun;
+        consumable.rarity = isUnique ? ItemRarity.ExpeditionGrade : ItemRarity.Makeshift;
         return consumable;
     }
 
-    private Item CreateKeyItem(int id, string name, string description)
+    private Item CreateKeyItem(int id, string name, string description, bool isUnique = true, int maxPerRun = 1)
     {
         Item keyItem = new Item(id, name, description, ItemCategory.KeyItems, ItemType.Misc);
         keyItem.sellPrice = 0; // Key items usually can't be sold
+        keyItem.weight = 0.1f;
+        keyItem.isUnique = isUnique;
+        keyItem.maxPerRun = maxPerRun;
+        keyItem.rarity = ItemRarity.Standard;
         return keyItem;
     }
 }
@@ -406,15 +550,19 @@ public class LootPickup : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            if (InventorySystem.Instance.AddItem(item, quantity))
+            // Check if player can pick up item before attempting
+            if (InventorySystem.Instance.CanPickupItem(item, quantity))
             {
-                string durabilityText = item.hasDurability ? $" (Durability: {item.GetDurabilityPercentage():F1}%)" : "";
-                Debug.Log($"Picked up {quantity}x {item.itemName}!{durabilityText}");
-                Destroy(gameObject);
+                if (InventorySystem.Instance.AddItem(item, quantity))
+                {
+                    string durabilityText = item.hasDurability ? $" (Durability: {item.GetDurabilityPercentage():F1}%)" : "";
+                    Debug.Log($"Picked up {quantity}x {item.itemName}!{durabilityText}");
+                    Destroy(gameObject);
+                }
             }
             else
             {
-                Debug.Log("Inventory is full!");
+                Debug.Log($"Cannot pick up {item.itemName} - restrictions apply!");
             }
         }
     }

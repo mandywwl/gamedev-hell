@@ -302,6 +302,47 @@ public class InventorySystem : MonoBehaviour
 
         return false;
     }
+    public bool CanPickupItem(Item item, int quantity = 1)
+    {
+        // Check if we have enough inventory slots
+        if (item.hasDurability)
+        {
+            // Weapons with durability don't stack - need one slot per item
+            int emptySlots = GetEmptySlotCount();
+            if (emptySlots < quantity)
+            {
+                Debug.Log($"Cannot pick up {item.itemName} - need {quantity} empty slots, only have {emptySlots}");
+                return false;
+            }
+        }
+        else
+        {
+            // Check if we can stack or need new slots
+            ItemStack existingStack = FindStackableItem(item);
+            if (existingStack == null || !existingStack.CanAddItems(quantity))
+            {
+                // Need at least one empty slot
+                if (GetEmptySlotCount() == 0)
+                {
+                    Debug.Log($"Cannot pick up {item.itemName} - inventory full");
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    // Helper method to count empty slots
+    private int GetEmptySlotCount()
+    {
+        int count = 0;
+        foreach (var slot in inventorySlots)
+        {
+            if (slot == null) count++;
+        }
+        return count;
+    }
 
     public int GetAmmoCount(ItemType ammoType)
     {

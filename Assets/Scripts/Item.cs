@@ -14,7 +14,7 @@ public class Item
     public int buyPrice;
     public bool isConsumable;
 
-    // Combat/RPG stats
+    // Combat stats
     public int attackPower = 0;
     public int defensePower = 0;
     public int hpRestore = 0;
@@ -38,6 +38,19 @@ public class Item
     public float healingAmount = 0f;
     public float sanityAmount = 0f;
     public bool isInstantUse = true;
+
+    // Procedural Generation Properties
+    [Header("Procedural Properties")]
+    public ItemRarity rarity = ItemRarity.Makeshift;
+    public float weight = 1f; // Weight for inventory limits
+    public bool isUnique = false; // Only one can exist per run
+    public int maxPerRun = -1; // -1 = unlimited, otherwise max amount per run
+    
+    // Run variation properties
+    [Header("Run Variation")]
+    public bool canBeModified = true; // Can stats be randomly modified?
+    public float minStatModifier = 0.8f; // Minimum stat multiplier
+    public float maxStatModifier = 1.3f; // Maximum stat multiplier
 
     public Item(int id, string name, string description, ItemCategory category, ItemType type = ItemType.Misc)
     {
@@ -119,6 +132,59 @@ public class Item
 
         return 0;
     }
+
+    // Procedural modification methods
+    public Item CreateModifiedCopy(float statModifier = 1f, string suffix = "")
+    {
+        if (!canBeModified) return this;
+
+        Item modifiedItem = new Item(id, itemName + suffix, description, category, type);
+        
+        // Copy all base properties
+        modifiedItem.icon = icon;
+        modifiedItem.maxStackSize = maxStackSize;
+        modifiedItem.sellPrice = Mathf.RoundToInt(sellPrice * statModifier);
+        modifiedItem.buyPrice = Mathf.RoundToInt(buyPrice * statModifier);
+        modifiedItem.isConsumable = isConsumable;
+        modifiedItem.rarity = rarity;
+        modifiedItem.weight = weight;
+        modifiedItem.isUnique = isUnique;
+        modifiedItem.maxPerRun = maxPerRun;
+        
+        // Apply stat modifications
+        modifiedItem.attackPower = Mathf.RoundToInt(attackPower * statModifier);
+        modifiedItem.defensePower = Mathf.RoundToInt(defensePower * statModifier);
+        modifiedItem.hpRestore = Mathf.RoundToInt(hpRestore * statModifier);
+        modifiedItem.sanityRestore = Mathf.RoundToInt(sanityRestore * statModifier);
+        
+        modifiedItem.hasDurability = hasDurability;
+        modifiedItem.maxDurability = maxDurability * statModifier;
+        modifiedItem.currentDurability = modifiedItem.maxDurability;
+        
+        modifiedItem.requiredAmmoType = requiredAmmoType;
+        modifiedItem.magazineSize = Mathf.RoundToInt(magazineSize * statModifier);
+        modifiedItem.fireRate = fireRate * statModifier;
+        modifiedItem.range = range * statModifier;
+        
+        modifiedItem.healingAmount = healingAmount * statModifier;
+        modifiedItem.sanityAmount = sanityAmount * statModifier;
+        modifiedItem.isInstantUse = isInstantUse;
+        
+        return modifiedItem;
+    }
+
+    public Color GetRarityColor()
+    {
+        switch (rarity)
+        {
+            case ItemRarity.Makeshift: return Color.white;
+            case ItemRarity.Standard: return Color.green;
+            case ItemRarity.ExpeditionGrade: return Color.blue;
+            case ItemRarity.Prototype: return Color.magenta;
+            case ItemRarity.Anomalous: return Color.yellow;
+            default: return Color.white;
+        }
+    }
 }
 
 public enum ItemCategory
@@ -129,6 +195,16 @@ public enum ItemCategory
     KeyItems,
     Materials,
     Accessories
+}
+
+// Item Rarity System
+public enum ItemRarity
+{
+    Makeshift,     // 60% chance
+    Standard,   // 25% chance  
+    ExpeditionGrade,       // 10% chance
+    Prototype,       // 4% chance
+    Anomalous   // 1% chance
 }
 
 public enum ItemType
@@ -222,5 +298,13 @@ public class ItemStack
     public bool IsEmpty()
     {
         return quantity <= 0;
+    }
+
+    // Weight calculation
+    public float GetTotalWeight()
+    {
+        return item.weight * quantity;
+
+        // Example: 10x Bandages = 0.2f × 10 = 2.0f total weight
     }
 }
