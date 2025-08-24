@@ -34,7 +34,7 @@ public class PlayerController : MonoBehaviour
 
     // state
      private Vector2 rawInput;
-    private Vector2 snappedInput;     // 8-dir (or raw if snapping off)
+    private Vector2 snappedInput;     // 8-dir snapped input
     private Vector2 desiredVelocity;  // moveSpeed * snappedInput
     private Vector2 smoothVelocity;   // used only if soften > 0
     private Vector2 lastLookDir = Vector2.down;
@@ -82,9 +82,6 @@ public class PlayerController : MonoBehaviour
         anim.SetFloat("MoveX", dirForAnim.x);
         anim.SetFloat("MoveY", dirForAnim.y);
         anim.SetFloat("Speed", snappedInput.sqrMagnitude > 0f ? 1f : 0f); 
-
-        // Y-sorting by feet ---
-        sr.sortingOrder = -(int)(transform.position.y * sortingMultiplier);
         
     }
     

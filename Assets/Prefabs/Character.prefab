@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 5855678711415783801}
   m_Layer: 0
   m_Name: Character
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -77,8 +77,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 969155485
-  m_SortingLayer: 4
+  m_SortingLayerID: -1831150519
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_Sprite: {fileID: -1977355706, guid: 280d1a95c26079d42a739575750381f1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -174,8 +174,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.051814556, y: 0.34242785}
-  m_Size: {x: 0.4532423, y: 0.7641289}
+  m_Offset: {x: 0.028488636, y: 0.16365854}
+  m_Size: {x: 0.29632282, y: 0.29632297}
   m_Direction: 0
 --- !u!114 &5855678711415783801
 MonoBehaviour:
@@ -189,9 +189,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00444dbfc25935944a597ffd1c390461, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 2
+  moveSpeed: 2.6
   snapToEightDirections: 1
   inputDeadzone: 0.15
   soften: 0
   rotateAnimatorInputBy45: 0
-  sortingMultiplier: 100
+  sortingMultiplier: 1
