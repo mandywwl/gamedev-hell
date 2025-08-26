@@ -315,6 +315,41 @@ public class LootSystem : MonoBehaviour
             }
         });
 
+        combatTables.Add(new LootTable
+        {
+            tableName = "ChestDrop",
+            lootDrops = new LootDrop[]
+    {
+        new LootDrop { itemId = 1, dropChance = 40f, minQuantity = 1, maxQuantity = 1, minDurability = 60f, maxDurability = 90f }, // M4A1
+        new LootDrop { itemId = 10, dropChance = 80f, minQuantity = 20, maxQuantity = 50 }, // 5.56 Ammo
+        new LootDrop { itemId = 31, dropChance = 60f, minQuantity = 2, maxQuantity = 4 }, // Medical Serum
+        new LootDrop { itemId = 40, dropChance = 30f, minQuantity = 1, maxQuantity = 1 }  // Keycard
+    }
+        });
+
+        combatTables.Add(new LootTable
+        {
+            tableName = "SmallChestDrop",
+            lootDrops = new LootDrop[]
+            {
+        new LootDrop { itemId = 30, dropChance = 90f, minQuantity = 3, maxQuantity = 6 }, // Bandages
+        new LootDrop { itemId = 10, dropChance = 70f, minQuantity = 10, maxQuantity = 25 }, // 5.56 Ammo
+        new LootDrop { itemId = 32, dropChance = 40f, minQuantity = 1, maxQuantity = 3 }   // Sanity Pills
+            }
+        });
+
+        combatTables.Add(new LootTable
+        {
+            tableName = "LargeChestDrop",
+            lootDrops = new LootDrop[]
+            {
+        new LootDrop { itemId = 2, dropChance = 50f, minQuantity = 1, maxQuantity = 1, minDurability = 70f, maxDurability = 95f }, // FN SCAR
+        new LootDrop { itemId = 11, dropChance = 85f, minQuantity = 30, maxQuantity = 60 }, // 7.62 Ammo
+        new LootDrop { itemId = 31, dropChance = 75f, minQuantity = 3, maxQuantity = 5 }, // Medical Serum
+        new LootDrop { itemId = 21, dropChance = 60f, minQuantity = 1, maxQuantity = 1 }  // Bruiser Jacket
+            }
+        });
+
         // Add to existing loot tables
         var currentTables = lootTables?.ToList() ?? new List<LootTable>();
         currentTables.AddRange(combatTables);

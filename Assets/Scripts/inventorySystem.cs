@@ -30,13 +30,9 @@ public class InventorySystem : MonoBehaviour
     {
         if (Instance == null)
         {
-            Instance = this;
+            Instance = this;  // Will work only on a GameObject!
             DontDestroyOnLoad(gameObject);
             InitializeInventory();
-        }
-        else
-        {
-            Destroy(gameObject);
         }
     }
 

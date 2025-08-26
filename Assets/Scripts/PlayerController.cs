@@ -26,7 +26,14 @@ public class PlayerController : MonoBehaviour
 
     [Header("Rendering")]
     [SerializeField] private int sortingMultiplier = 1; // TODO: tweak
-    
+
+    [Header("Interaction")]
+    [Tooltip("Range to detect interactable objects like chests")]
+    [SerializeField] private float interactionRange = 1.5f;
+    [Tooltip("Layer mask for interactable objects")]
+    [SerializeField] private LayerMask interactableLayer = -1;
+
+
     // cached
     private Rigidbody2D rb;
     private Animator anim;
@@ -39,6 +46,9 @@ public class PlayerController : MonoBehaviour
     private Vector2 smoothVelocity;   // used only if soften > 0
     private Vector2 lastLookDir = Vector2.down;
 
+    // Interactions
+    private ChestInteraction nearbyChest;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -50,8 +60,14 @@ public class PlayerController : MonoBehaviour
         rb.interpolation  = RigidbodyInterpolation2D.Interpolate;
         rb.freezeRotation = true; // avoid accidental torque/rotation
     }
-
+    
     void Update()
+    {
+        HandleMovement();
+        HandleInteraction();
+    }
+
+    void HandleMovement()
     {
         // Read input (legacy Input Manager)
         rawInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
@@ -81,15 +97,64 @@ public class PlayerController : MonoBehaviour
 
         anim.SetFloat("MoveX", dirForAnim.x);
         anim.SetFloat("MoveY", dirForAnim.y);
-        anim.SetFloat("Speed", snappedInput.sqrMagnitude > 0f ? 1f : 0f); 
-        
+        anim.SetFloat("Speed", snappedInput.sqrMagnitude > 0f ? 1f : 0f);
+
     }
-    
+
     void FixedUpdate()
     {
         // MovePosition = deterministic
         Vector2 next = rb.position + smoothVelocity * Time.fixedDeltaTime;
         rb.MovePosition(next);
+    }
+
+    private void HandleInteraction()
+    {
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            TryInteractWithChest();
+        }
+
+        // Update nearby chest detection
+        UpdateNearbyChest();
+    }
+
+    private void TryInteractWithChest()
+    {
+        if (nearbyChest != null && nearbyChest.CanInteract())
+        {
+            nearbyChest.OpenChest();
+            Debug.Log($"Interacted with chest: {nearbyChest.gameObject.name}");
+        }
+        else
+        {
+            Debug.Log("No chest to interact with nearby");
+        }
+    }
+
+    private void UpdateNearbyChest()
+    {
+        // Find the closest chest within interaction range
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, interactionRange, interactableLayer);
+
+        ChestInteraction closestChest = null;
+        float closestDistance = float.MaxValue;
+
+        foreach (var collider in colliders)
+        {
+            ChestInteraction chest = collider.GetComponent<ChestInteraction>();
+            if (chest != null && chest.CanInteract())
+            {
+                float distance = Vector2.Distance(transform.position, chest.transform.position);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestChest = chest;
+                }
+            }
+        }
+
+        nearbyChest = closestChest;
     }
 
     // --- Helpers ---
