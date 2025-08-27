@@ -503,7 +503,7 @@ Transform:
   m_GameObject: {fileID: 662541641}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 57.49781}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -554,7 +554,7 @@ MonoBehaviour:
   priority: 0
   blendDistance: 0
   weight: 1
-  sharedProfile: {fileID: 11400000, guid: 61e5b819aba4ec4439a578bb85346f48, type: 2}
+  sharedProfile: {fileID: 11400000, guid: 6e3d4316a6012e34e99efa73f821a98e, type: 2}
 --- !u!82 &662541646
 AudioSource:
   m_ObjectHideFlags: 0
@@ -3576,6 +3576,10 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 1397596969}
+    - target: {fileID: 994519513729289418, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
+      propertyPath: m_SortingOrder
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 2537124599945913928, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_Delegates.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 

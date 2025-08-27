@@ -4,13 +4,14 @@ using System.Collections;
 
 public class menuSelection : MonoBehaviour
 {
-    //Menu States hi
-    public enum MenuStates { Main, Settings};
+    //Menu States
+    public enum MenuStates { Main, Settings, Credits};
     public MenuStates currentstate;
 
     //Menu Panel Objects
     public GameObject mainMenu;
     public GameObject settingsMenu;
+    public GameObject creditsMenu;
 
     //When scipt first starts
     void Awake()
@@ -25,20 +26,26 @@ public class menuSelection : MonoBehaviour
         switch (currentstate)
         {
             case MenuStates.Main:
-
-                //sets active gameobject for main menu
                 mainMenu.SetActive(true);
                 settingsMenu.SetActive(false);
+                creditsMenu.SetActive(false);
                 break;
-            case MenuStates.Settings:
 
-                //sets active gameobject for main menu
+            case MenuStates.Settings:
                 mainMenu.SetActive(false);
                 settingsMenu.SetActive(true);
+                creditsMenu.SetActive(false);
                 break;
+
+            case MenuStates.Credits:
+                mainMenu.SetActive(false);
+                settingsMenu.SetActive(false);
+                creditsMenu.SetActive(true);
+                break;
+
         }
     }
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    
     public void StartGame()
     {
         Debug.Log("Start game");
@@ -49,7 +56,6 @@ public class menuSelection : MonoBehaviour
     {
         Debug.Log("Settings");
 
-        //Change menu state
         currentstate = MenuStates.Settings;
     }
 
@@ -57,8 +63,14 @@ public class menuSelection : MonoBehaviour
     {
         Debug.Log("Back to Main Menu");
 
-        //Change menu state
         currentstate = MenuStates.Main;
+    }
+
+    public void CreditsMenu()
+    {
+        Debug.Log("Credits");
+
+        currentstate = MenuStates.Credits;
     }
 
     public void ExitGame()

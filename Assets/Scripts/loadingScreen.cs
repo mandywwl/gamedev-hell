@@ -7,7 +7,7 @@ using static UnityEngine.Rendering.HDROutputUtils;
 public class loadingScreen : MonoBehaviour
 {
 
-    public Text progressText; // Text showing loading percentage (optional)
+    public Text progressText; //text that will show loading percentage 
     void Start()
     {
         StartCoroutine(LoadNextScene());
@@ -15,9 +15,9 @@ public class loadingScreen : MonoBehaviour
 
     IEnumerator LoadNextScene()
     {
-        // The Application loads the Scene in the background as the current Scene runs.
+        //application loads the Scene in the background as the current Scene runs.
 
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("PlayTest");
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("Scene_01_StartingBlock");
 
         asyncLoad.allowSceneActivation = false; // pause the level from activating 
 
