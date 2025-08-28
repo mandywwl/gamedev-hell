@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Eldritch Entity Dormant_0: -9040735075141863653
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

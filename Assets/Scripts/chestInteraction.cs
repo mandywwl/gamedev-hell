@@ -1,7 +1,10 @@
+using System.Collections;
 using UnityEngine;
 
 public class ChestInteraction : MonoBehaviour
 {
+    [SerializeField] private AudioClip openChest;
+
     [Header("Chest Settings")]
     [Tooltip("Whether this chest has already been opened")]
     public bool isOpened = false;
@@ -16,6 +19,7 @@ public class ChestInteraction : MonoBehaviour
 
     // Components
     private Animator animator;
+    private AudioSource audioSource;
     private bool playerInRange = false;
 
     // Events for UI updates
@@ -25,6 +29,13 @@ public class ChestInteraction : MonoBehaviour
     void Start()
     {
         animator = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
+
+        // Add AudioSource if it doesn't exist
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
 
         // Make sure the chest has a trigger collider
         if (GetComponent<Collider2D>() == null)
@@ -62,6 +73,12 @@ public class ChestInteraction : MonoBehaviour
         if (isOpened) return;
 
         isOpened = true;
+
+        // Play chest opening sound
+        if (audioSource != null && openChest != null)
+        {
+            audioSource.PlayOneShot(openChest);
+        }
 
         // Play opening animation
         if (animator != null)

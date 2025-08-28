@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Floating Rock A1 Sheet_0: -1314227231948209236
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

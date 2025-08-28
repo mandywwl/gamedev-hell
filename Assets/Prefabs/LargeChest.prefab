@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &6540237826479455437
+--- !u!1 &6993066230489775806
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,12 +8,12 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1663458927977820939}
-  - component: {fileID: 2461558701571186948}
-  - component: {fileID: 6455940193738990325}
-  - component: {fileID: 6416749603485983200}
-  - component: {fileID: 4698172091889462649}
-  - component: {fileID: 1870300707413028970}
+  - component: {fileID: 8232903825090064829}
+  - component: {fileID: 4546502263115745387}
+  - component: {fileID: 3463009820990875120}
+  - component: {fileID: 7304936280849039695}
+  - component: {fileID: 6247011912531513663}
+  - component: {fileID: 7336996274399235697}
   m_Layer: 0
   m_Name: LargeChest
   m_TagString: Untagged
@@ -21,28 +21,28 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1663458927977820939
+--- !u!4 &8232903825090064829
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6540237826479455437}
+  m_GameObject: {fileID: 6993066230489775806}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -14.808, y: 0.031, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -14.781109, y: 0.10213125, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &2461558701571186948
+--- !u!212 &4546502263115745387
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6540237826479455437}
+  m_GameObject: {fileID: 6993066230489775806}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -91,14 +91,14 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 1
---- !u!95 &6455940193738990325
+--- !u!95 &3463009820990875120
 Animator:
   serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6540237826479455437}
+  m_GameObject: {fileID: 6993066230489775806}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: 6c00f6ac4b10883479735fe63ec19db6, type: 2}
@@ -113,13 +113,13 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!58 &6416749603485983200
+--- !u!58 &7304936280849039695
 CircleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6540237826479455437}
+  m_GameObject: {fileID: 6993066230489775806}
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
@@ -149,13 +149,13 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: -0.024919987, y: 0.07775888}
   m_Radius: 0.39195085
---- !u!68 &4698172091889462649
+--- !u!68 &6247011912531513663
 EdgeCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6540237826479455437}
+  m_GameObject: {fileID: 6993066230489775806}
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
@@ -197,18 +197,19 @@ EdgeCollider2D:
   m_AdjacentEndPoint: {x: 0, y: 0}
   m_UseAdjacentStartPoint: 0
   m_UseAdjacentEndPoint: 0
---- !u!114 &1870300707413028970
+--- !u!114 &7336996274399235697
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6540237826479455437}
+  m_GameObject: {fileID: 6993066230489775806}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fb463ebec38ce25408da25acbea2f383, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  openChest: {fileID: 8300000, guid: b00fe768da7a77742a4673db91e54dc6, type: 3}
   isOpened: 0
   lootTableName: ChestDrop
   interactionPrompt: Press E to open chest

@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Eldritch Entity Awaken_0: -273773566590112275
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

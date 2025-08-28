@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Mouth 1 Gif_0: 5058154617845762165
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

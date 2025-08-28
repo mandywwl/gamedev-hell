@@ -409,7 +409,19 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Vein A2 Sheet_0: 102452249000583388
+      Vein A2 Sheet_1: -955983374025868419
+      Vein A2 Sheet_10: -7977680082438874777
+      Vein A2 Sheet_11: 6819293325792158754
+      Vein A2 Sheet_2: -5707025952492120541
+      Vein A2 Sheet_3: -2020896073329593401
+      Vein A2 Sheet_4: 923638063983784945
+      Vein A2 Sheet_5: 1760094223548616890
+      Vein A2 Sheet_6: -5810517330369241485
+      Vein A2 Sheet_7: -3038532045819095836
+      Vein A2 Sheet_8: 5267962814463024314
+      Vein A2 Sheet_9: -1745571182984481034
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

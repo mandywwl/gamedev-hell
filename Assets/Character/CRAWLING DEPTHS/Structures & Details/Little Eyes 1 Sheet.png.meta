@@ -259,7 +259,13 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Little Eyes 1 Sheet_0: -774375597241006830
+      Little Eyes 1 Sheet_1: -6484817613062101315
+      Little Eyes 1 Sheet_2: 2669360946660293442
+      Little Eyes 1 Sheet_3: 8801185649529132251
+      Little Eyes 1 Sheet_4: 1266682832853498833
+      Little Eyes 1 Sheet_5: 6758350575211746627
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

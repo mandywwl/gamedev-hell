@@ -409,7 +409,19 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Floating Rock B1 Sheet_0: -3418488878429512371
+      Floating Rock B1 Sheet_1: 6587990184590652082
+      Floating Rock B1 Sheet_10: 1475327906925027014
+      Floating Rock B1 Sheet_11: 5556100240811770348
+      Floating Rock B1 Sheet_2: 6477453771531469299
+      Floating Rock B1 Sheet_3: -2462597163457076040
+      Floating Rock B1 Sheet_4: 1374481080111099348
+      Floating Rock B1 Sheet_5: 7635567013784837132
+      Floating Rock B1 Sheet_6: 5208820539406775004
+      Floating Rock B1 Sheet_7: 5612992122943140382
+      Floating Rock B1 Sheet_8: 867037343367022668
+      Floating Rock B1 Sheet_9: -6917889091363819448
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

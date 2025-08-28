@@ -259,7 +259,13 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Amalgam 1 Sheet_0: -4439470365873328325
+      Amalgam 1 Sheet_1: 677464939547198372
+      Amalgam 1 Sheet_2: -275629949232344188
+      Amalgam 1 Sheet_3: -6819748337476737303
+      Amalgam 1 Sheet_4: 3422409883402782398
+      Amalgam 1 Sheet_5: -8003908498892839312
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

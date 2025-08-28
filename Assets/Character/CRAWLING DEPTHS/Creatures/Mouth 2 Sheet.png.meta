@@ -559,7 +559,25 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Mouth 2 Sheet_0: -6832397465898218970
+      Mouth 2 Sheet_1: 873240224698717968
+      Mouth 2 Sheet_10: -1618602011877804941
+      Mouth 2 Sheet_11: -5729400316798091173
+      Mouth 2 Sheet_12: -8900877452476317254
+      Mouth 2 Sheet_13: -4606622357052711091
+      Mouth 2 Sheet_14: 5793693375583218682
+      Mouth 2 Sheet_15: 2432184708862370829
+      Mouth 2 Sheet_16: -8244001724255015748
+      Mouth 2 Sheet_17: 1697305843274025222
+      Mouth 2 Sheet_2: -4754071891277188230
+      Mouth 2 Sheet_3: 4420509325574029924
+      Mouth 2 Sheet_4: 5861626160556282945
+      Mouth 2 Sheet_5: -2587077651852948269
+      Mouth 2 Sheet_6: -9009887789937566146
+      Mouth 2 Sheet_7: 2194450028830353948
+      Mouth 2 Sheet_8: -3687533495297219585
+      Mouth 2 Sheet_9: -5277130225469319971
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
