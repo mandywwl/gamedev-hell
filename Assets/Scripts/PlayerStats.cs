@@ -194,7 +194,7 @@ public class PlayerStats : MonoBehaviour
     
     
     /// Take damage during combat - applies defense reduction
-    public bool TakeDamage(float damage)
+    public bool TakeDamage(float damage, bool isInCombat)
     {
         float actualDamage = Mathf.Max(1f, damage - GetTotalDefensePower()); // Minimum 1 damage
         
