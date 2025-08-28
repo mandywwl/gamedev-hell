@@ -7,8 +7,15 @@ public enum BattleState { START, PLAYERTURN, ENEMYTURN, WON, LOST, FLED}
 public class BattleSystem : MonoBehaviour
 {
 
+    private GameObject enemyGO;
+    private Animator enemyAnim;
+
+    private GameObject playerGO;
+    private Animator playerAnim;
+
     public GameObject playerPrefab;
-    public GameObject enemyPrefab;
+    [Header("Enemy Prefabs")]
+    public GameObject[] enemyPrefabs;
 
     public Transform playerBattleStation;
     public Transform enemyBattleStation;
@@ -32,10 +39,14 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator SetupBattle()
     {
-        GameObject playerGO = Instantiate(playerPrefab, playerBattleStation);
+        // Pick one randomly
+        int randomIndex = Random.Range(0, enemyPrefabs.Length);
+        GameObject chosenEnemyPrefab = enemyPrefabs[randomIndex];
+
+        playerGO = Instantiate(playerPrefab, playerBattleStation);
         playerUnit = playerGO.GetComponent<Unit>();
 
-        GameObject enemyGO = Instantiate(enemyPrefab, enemyBattleStation);
+        enemyGO = Instantiate(chosenEnemyPrefab, enemyBattleStation);
         enemyUnit = enemyGO.GetComponent<Unit>();
 
         dialogueText.text = "Encountered " + enemyUnit.unitName;
@@ -45,6 +56,9 @@ public class BattleSystem : MonoBehaviour
 
         playerGO.transform.localScale = new Vector3(5, 5, 1);
         enemyGO.transform.localScale = new Vector3(5, 5, 1);
+
+        enemyAnim = enemyGO.GetComponent<Animator>();
+        enemyAnim.Play("Idle");
 
         yield return new WaitForSeconds(2f);
 
@@ -72,6 +86,7 @@ public class BattleSystem : MonoBehaviour
     {
         //Deal damage
         bool isDead = enemyUnit.TakeDamage(playerUnit.damage);
+        enemyAnim.SetTrigger("Hurt");
 
         enemyHUD.SetHP(enemyUnit.currentHP);
         dialogueText.text = "Attack successful!";
@@ -82,6 +97,12 @@ public class BattleSystem : MonoBehaviour
         if (isDead)
         {
             //end battle
+            enemyAnim.ResetTrigger("Attack");
+            enemyAnim.ResetTrigger("Hurt");
+            enemyAnim.SetTrigger("Die");
+            yield return new WaitForSeconds(enemyAnim.GetCurrentAnimatorStateInfo(0).length);
+            Destroy(enemyGO);
+
             state = BattleState.WON;
             EndBattle();
         }
@@ -97,6 +118,7 @@ public class BattleSystem : MonoBehaviour
     IEnumerator EnemyTurn()
     {
         dialogueText.text = enemyUnit.unitName + " attacks!";
+        enemyAnim.SetTrigger("Attack");
 
         yield return new WaitForSeconds(1f);
 

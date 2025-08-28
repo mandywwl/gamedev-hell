@@ -532,7 +532,7 @@ Transform:
   m_GameObject: {fileID: 52786993}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 7, y: -2, z: 0}
+  m_LocalPosition: {x: 7, y: -1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -724,15 +724,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 822749847856603365, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 822749847856603365, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 822749847856603365, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 994519513729289418, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_Camera
@@ -748,15 +748,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3731637280175534216, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 3731637280175534216, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3838304126118579839, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_Name
       value: PauseMenu
+      objectReference: {fileID: 0}
+    - target: {fileID: 3838304126118579839, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4710229813312335338, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -896,23 +900,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6115064338025139362, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 6115064338025139362, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6388849838908282626, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 6388849838908282626, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6388849838908282626, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 7845283114431766265, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -1275,7 +1279,7 @@ Transform:
   m_GameObject: {fileID: 457138019}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7, y: -2, z: 0}
+  m_LocalPosition: {x: -7, y: -1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1437,7 +1441,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerPrefab: {fileID: 2204632177521974087, guid: 70a9695197f15644ab70acbc02eaa02e, type: 3}
-  enemyPrefab: {fileID: 8984928102782303292, guid: 5fec30bbeb147654fba6b58a374b7849, type: 3}
+  enemyPrefabs:
+  - {fileID: 7668216280168620780, guid: 825d2b0d97e42164bb6c0515518bf328, type: 3}
+  - {fileID: 2998292238151036398, guid: 23bdb931b1fddb34d9a04d33e1051575, type: 3}
   playerBattleStation: {fileID: 52786995}
   enemyBattleStation: {fileID: 457138021}
   dialogueText: {fileID: 2145623894}
