@@ -21,10 +21,10 @@ EditorBuildSettings:
     path: Assets/Scenes/Combat.unity
     guid: e54147505f32d40ddb33847fb7754ca9
   - enabled: 1
-    path: Assets/Scenes/Scene_01_StartingBlock.unity
+    path: Assets/Scenes/StartMap.unity
     guid: d0a01df467a37894caaa3082792ec385
   - enabled: 1
-    path: Assets/Scenes/Scene_2.unity
+    path: Assets/Scenes/NorthEastMap.unity
     guid: e22f3724345d94e59915623690546f86
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 5b883cfa7fe71d64c90f72245c8651a9, type: 2}
