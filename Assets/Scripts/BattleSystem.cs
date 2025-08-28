@@ -20,7 +20,7 @@ public class BattleSystem : MonoBehaviour
     public Transform playerBattleStation;
     public Transform enemyBattleStation;
 
-    Unit playerUnit;
+    PlayerStats playerUnit;
     Unit enemyUnit;
 
     public TMP_Text dialogueText;
@@ -44,14 +44,14 @@ public class BattleSystem : MonoBehaviour
         GameObject chosenEnemyPrefab = enemyPrefabs[randomIndex];
 
         playerGO = Instantiate(playerPrefab, playerBattleStation);
-        playerUnit = playerGO.GetComponent<Unit>();
+        playerUnit = playerGO.GetComponent<PlayerStats>();
 
         enemyGO = Instantiate(chosenEnemyPrefab, enemyBattleStation);
         enemyUnit = enemyGO.GetComponent<Unit>();
 
         dialogueText.text = "Encountered " + enemyUnit.unitName;
 
-        playerHUD.SetHUD(playerUnit);
+        playerHUD.SetPlayerHUD(playerUnit);
         enemyHUD.SetHUD(enemyUnit);
 
         playerGO.transform.localScale = new Vector3(5, 5, 1);
@@ -85,7 +85,7 @@ public class BattleSystem : MonoBehaviour
     IEnumerator PlayerAttack()
     {
         //Deal damage
-        bool isDead = enemyUnit.TakeDamage(playerUnit.damage);
+        bool isDead = enemyUnit.TakeDamage(playerUnit.GetTotalAttackPower());
         enemyAnim.SetTrigger("Hurt");
 
         enemyHUD.SetHP(enemyUnit.currentHP);

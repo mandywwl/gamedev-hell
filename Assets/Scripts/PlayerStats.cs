@@ -6,7 +6,8 @@ using UnityEngine;
 public class PlayerStats : MonoBehaviour
 {
     public static PlayerStats Instance { get; private set; }
-    
+    public string unitName;
+
     [Header("Base Stats")]
     public float maxHP = 100f;
     public float baseAttackPower = 10f;

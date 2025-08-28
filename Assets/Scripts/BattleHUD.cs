@@ -5,19 +5,24 @@ using UnityEngine.UI;
 public class BattleHUD : MonoBehaviour
 {
     public TMP_Text nameText;
-    public TMP_Text leveltext;
 
     public Slider hpSlider;
 
     public void SetHUD(Unit unit)
     {
         nameText.text = unit.unitName;
-        leveltext.text = "Lvl: " + unit.unitLevel;
         hpSlider.maxValue = unit.maxHP;
         hpSlider.value = unit.currentHP;
     }
 
-    public void SetHP(int hp)
+    public void SetPlayerHUD(PlayerStats unit)
+    {
+        nameText.text = unit.unitName;
+        hpSlider.maxValue = unit.maxHP;
+        hpSlider.value = unit.currentHP;
+    }
+
+    public void SetHP(float hp)
     {
         hpSlider.value = hp;
     }

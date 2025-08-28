@@ -3,14 +3,12 @@ using UnityEngine;
 public class Unit : MonoBehaviour
 {
     public string unitName;
-    public int unitLevel;
 
-    public int damage;
+    public float damage;
+    public float maxHP;
+    public float currentHP;
 
-    public int maxHP;
-    public int currentHP;
-
-    public bool TakeDamage(int dmg)
+    public bool TakeDamage(float dmg)
     {
         currentHP -= dmg;
 
