@@ -17,7 +17,7 @@ public class loadingScreen : MonoBehaviour
     {
         //application loads the Scene in the background as the current Scene runs.
 
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("Scene_01_StartingBlock");
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("StartMap");
 
         asyncLoad.allowSceneActivation = false; // pause the level from activating 
 
