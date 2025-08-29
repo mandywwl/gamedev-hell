@@ -202,6 +202,7 @@ public class PlayerStats : MonoBehaviour
         {
             combatHP = Mathf.Max(0f, combatHP - actualDamage);
             Debug.Log($"Player took {actualDamage:F1} damage (reduced from {damage:F1} by {GetTotalDefensePower():F1} defense). HP: {combatHP:F1}/{maxHP:F1}");
+            currentHP = combatHP;
         }
         else
         {

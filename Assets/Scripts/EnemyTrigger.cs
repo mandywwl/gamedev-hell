@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static BattleSystem;
 
 public class BossEncounter : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class BossEncounter : MonoBehaviour
     {
 
         if (other.CompareTag("Player"))
+            BattleTransfer.encounterKind = EncounterKind.Boss;
             Debug.Log("Entered boss trigger!");
 
         if (triggered) return;
@@ -32,5 +34,7 @@ public class BossEncounter : MonoBehaviour
         public static string returnSceneName;
         public static int enemyIndex = -1;
         public static Vector3 returnPosition;
+
+        public static BattleSystem.EncounterKind encounterKind = BattleSystem.EncounterKind.RandomEnemy;
     }
 }

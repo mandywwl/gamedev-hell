@@ -1,51 +1,80 @@
 using UnityEngine;
 using System.Collections;
 using TMPro;
+using static BossEncounter;
 
 public enum BattleState { START, PLAYERTURN, ENEMYTURN, WON, LOST, FLED}
 
 public class BattleSystem : MonoBehaviour
 {
+    [Header("Background")]
+    public BackgroundManager backgroundManager;
 
     private GameObject enemyGO;
     private Animator enemyAnim;
+    private GameObject chosenEnemyPrefab;
 
     private GameObject playerGO;
     private Animator playerAnim;
 
+    [Header("Player")]
     public GameObject playerPrefab;
     [Header("Enemy Prefabs")]
     public GameObject[] enemyPrefabs;
+    [Header("Boss Prefab")]
+    public GameObject bossPrefab;
 
+    [Header("Spawn Areas")]
     public Transform playerBattleStation;
     public Transform enemyBattleStation;
 
     PlayerStats playerUnit;
     Unit enemyUnit;
 
+    [Header("UI")]
     public TMP_Text dialogueText;
-
     public BattleHUD playerHUD;
     public BattleHUD enemyHUD;
 
     public BattleState state;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    //choose what type of enemy at runtime (default is random enemy)
+    public enum EncounterKind { RandomEnemy, Boss }
+    public EncounterKind encounterKind = EncounterKind.RandomEnemy;
+
     void Start()
     {
+        if (BattleTransfer.encounterKind != EncounterKind.RandomEnemy)
+        {
+            encounterKind = BattleTransfer.encounterKind;
+        }
+        //please use these below for respecitve triggers!
+        //BattleTransfer.encounterKind = EncounterKind.Boss;
+        //BattleTransfer.encounterKind = EncounterKind.RandomEnemy;
+
         state = BattleState.START;
         StartCoroutine(SetupBattle());
     }
 
     IEnumerator SetupBattle()
     {
-        // Pick one randomly
-        int randomIndex = Random.Range(0, enemyPrefabs.Length);
-        GameObject chosenEnemyPrefab = enemyPrefabs[randomIndex];
-
+        //load player
         playerGO = Instantiate(playerPrefab, playerBattleStation);
         playerUnit = playerGO.GetComponent<PlayerStats>();
 
+        //choose and load enemy
+        if (encounterKind == EncounterKind.RandomEnemy)
+        {
+            // Pick one randomly
+            int randomIndex = Random.Range(0, enemyPrefabs.Length);
+            chosenEnemyPrefab = enemyPrefabs[randomIndex];
+            backgroundManager.SetBackgroundToStreet();
+        }
+        else if (encounterKind == EncounterKind.Boss)
+        {
+            chosenEnemyPrefab = bossPrefab;
+            backgroundManager.SetBackgroundToStore();
+        }
         enemyGO = Instantiate(chosenEnemyPrefab, enemyBattleStation);
         enemyUnit = enemyGO.GetComponent<Unit>();
 

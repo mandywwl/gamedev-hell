@@ -124,7 +124,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitName: Humanoid1
-  unitLevel: 2
-  damage: 5
+  damage: 6
   maxHP: 30
   currentHP: 30
