@@ -3,7 +3,7 @@ using System.Collections;
 using TMPro;
 using static BossEncounter;
 
-public enum BattleState { START, PLAYERTURN, ENEMYTURN, WON, LOST, FLED}
+public enum BattleState { START, PLAYERTURN, ENEMYTURN, WON, LOST, FLED, BUSY}
 
 public class BattleSystem : MonoBehaviour
 {
@@ -186,24 +186,34 @@ public class BattleSystem : MonoBehaviour
 
     public void OnAttackButton()
     {
-        if (state != BattleState.PLAYERTURN) 
+        if (state != BattleState.PLAYERTURN)
+        {
+            Debug.Log("Not your turn!");
             return;
+        }
 
+        state = BattleState.BUSY;
         StartCoroutine(PlayerAttack());
     }
 
     public void OnItemButton()
-    { 
+    {
         if (state != BattleState.PLAYERTURN)
+        {
+            Debug.Log("Not your turn!");
             return;
-
+        }
         //go to inventory UI here
+
     }
 
     public void OnRunButton()
     {
         if (state != BattleState.PLAYERTURN)
+        {
+            Debug.Log("Not your turn!");
             return;
+        }
 
         StartCoroutine(PlayerFlee());
     }

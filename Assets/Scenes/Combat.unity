@@ -1452,7 +1452,7 @@ MonoBehaviour:
   playerHUD: {fileID: 767215732}
   enemyHUD: {fileID: 1766375187}
   state: 0
-  encounterKind: 1
+  encounterKind: 0
 --- !u!4 &507950167
 Transform:
   m_ObjectHideFlags: 0
