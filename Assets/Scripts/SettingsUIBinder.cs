@@ -8,7 +8,7 @@ public class SettingsUIBinder : MonoBehaviour
     [Header("Controls in Game scene")]
     public Slider brightness;
     public Slider sound;
-    public TMP_Dropdown quality;
+    //public TMP_Dropdown quality;
     public TMP_Dropdown resolution;
     public Toggle fullscreen;
 
@@ -50,9 +50,9 @@ public class SettingsUIBinder : MonoBehaviour
         {
             SelectedQualityList.Add(qual);
         }
-        quality.AddOptions(SelectedQualityList);
+        //quality.AddOptions(SelectedQualityList);
 
-        if (quality) quality.SetValueWithoutNotify(PlayerPrefs.GetInt("quality", QualitySettings.GetQualityLevel()));
+        //if (quality) quality.SetValueWithoutNotify(PlayerPrefs.GetInt("quality", QualitySettings.GetQualityLevel()));
         if (resolution) resolution.SetValueWithoutNotify(PlayerPrefs.GetInt("resolution", resolution.value));
     }
 
@@ -77,7 +77,7 @@ public class SettingsUIBinder : MonoBehaviour
 
         if (brightness) brightness.onValueChanged.AddListener(sm.ChangeBrightness);
         if (sound) sound.onValueChanged.AddListener(sm.ChangeSound);
-        if (quality) quality.onValueChanged.AddListener(sm.ChangeQuality);
+        //if (quality) quality.onValueChanged.AddListener(sm.ChangeQuality);
         if (resolution) resolution.onValueChanged.AddListener(sm.ChangeResolution);
         if (fullscreen) fullscreen.onValueChanged.AddListener((bool isOn) => sm.ChangeFullScreen(isOn));
     }
@@ -88,7 +88,7 @@ public class SettingsUIBinder : MonoBehaviour
         
         if (brightness) brightness.onValueChanged.RemoveAllListeners();
         if (sound) sound.onValueChanged.RemoveAllListeners();
-        if (quality) quality.onValueChanged.RemoveAllListeners();
+        //if (quality) quality.onValueChanged.RemoveAllListeners();
         if (resolution) resolution.onValueChanged.RemoveAllListeners();
         if (fullscreen) fullscreen.onValueChanged.RemoveAllListeners();
     }

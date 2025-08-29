@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using TMPro;
 using static BossEncounter;
+using UnityEngine.SceneManagement;
 
 public enum BattleState { START, PLAYERTURN, ENEMYTURN, WON, LOST, FLED, BUSY}
 
@@ -100,10 +101,17 @@ public class BattleSystem : MonoBehaviour
         if (state == BattleState.WON)
         {
             dialogueText.text = "You won!";
+            if(encounterKind == EncounterKind.Boss)
+            {
+                PlayerPrefs.SetString("BattleResult", "WON");
+                SceneManager.LoadScene("EndGameScrn");
+            }
         }
         else if (state == BattleState.LOST)
         {
             dialogueText.text = "You are defeated.";
+            PlayerPrefs.SetString("BattleResult", "LOST");
+            SceneManager.LoadScene("EndGameScrn");
         }
         else if (state == BattleState.FLED)
         {

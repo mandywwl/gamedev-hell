@@ -12,9 +12,11 @@ public class BossEncounter : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other)
     {
 
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player")) 
+        {
             BattleTransfer.encounterKind = EncounterKind.Boss;
-            Debug.Log("Entered boss trigger!");
+            Debug.Log("Entered boss trigger!"); 
+        }
 
         if (triggered) return;
         if (!other.CompareTag("Player")) return;

@@ -10,7 +10,7 @@ public class settingsManager : MonoBehaviour
     public TMP_Dropdown ResDropDown;
     public Toggle FullScreenToggle;
 
-    public TMP_Dropdown QualityDropDown;
+    //public TMP_Dropdown QualityDropDown;
 
     public Slider Brightness;
     [SerializeField] private VolumeProfile brightnessProfile;
@@ -79,7 +79,7 @@ public class settingsManager : MonoBehaviour
         {
             SelectedQualityList.Add(qual);
         }
-        QualityDropDown.AddOptions(SelectedQualityList);
+        //QualityDropDown.AddOptions(SelectedQualityList);
 
     }
 
