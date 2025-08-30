@@ -176,8 +176,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
-
     private void TryInteractWithChest()
     {
         if (nearbyChest != null && nearbyChest.CanInteract())
