@@ -400,10 +400,15 @@ public class LootSystem : MonoBehaviour
 
     private Item CreateItemCopy(Item original)
     {
-        Item copy = new Item(original.id, original.itemName, original.description,
-                           original.category, original.type);
-
-        // Copy all properties
+        // Create a new instance using CreateInstance for ScriptableObjects
+        Item copy = ScriptableObject.CreateInstance<Item>();
+        
+        // Copy all properties manually
+        copy.id = original.id;
+        copy.itemName = original.itemName;
+        copy.description = original.description;
+        copy.category = original.category;
+        copy.type = original.type;
         copy.icon = original.icon;
         copy.maxStackSize = original.maxStackSize;
         copy.sellPrice = original.sellPrice;
@@ -423,6 +428,13 @@ public class LootSystem : MonoBehaviour
         copy.healingAmount = original.healingAmount;
         copy.sanityAmount = original.sanityAmount;
         copy.isInstantUse = original.isInstantUse;
+        copy.rarity = original.rarity;
+        copy.weight = original.weight;
+        copy.isUnique = original.isUnique;
+        copy.maxPerRun = original.maxPerRun;
+        copy.canBeModified = original.canBeModified;
+        copy.minStatModifier = original.minStatModifier;
+        copy.maxStatModifier = original.maxStatModifier;
 
         return copy;
     }
@@ -468,8 +480,15 @@ public class LootSystem : MonoBehaviour
 
     private Item CreateWeapon(int id, string name, string description, ItemType type, int damage, ItemType ammoType, int magSize, float fireRate, float range, ItemRarity rarity, float weight, bool isUnique, int maxPerRun)
     {
-        // Properties of weapons
-        Item weapon = new Item(id, name, description, ItemCategory.Weapons, type);
+        // Create ScriptableObject instance
+        Item weapon = ScriptableObject.CreateInstance<Item>();
+        
+        // Set basic properties
+        weapon.id = id;
+        weapon.itemName = name;
+        weapon.description = description;
+        weapon.category = ItemCategory.Weapons;
+        weapon.type = type;
         weapon.attackPower = damage;
         weapon.requiredAmmoType = ammoType;
         weapon.magazineSize = magSize;
@@ -481,35 +500,61 @@ public class LootSystem : MonoBehaviour
         weapon.weight = weight;
         weapon.isUnique = isUnique;
         weapon.maxPerRun = maxPerRun;
+        weapon.hasDurability = true;
+        weapon.maxDurability = 100f;
+        weapon.currentDurability = 100f;
         
         return weapon;
     }
 
     private Item CreateAmmo(int id, string name, string description, ItemType type, int maxStack, float weight)
     {
-        Item ammo = new Item(id, name, description, ItemCategory.Materials, type);
+        Item ammo = ScriptableObject.CreateInstance<Item>();
+        
+        ammo.id = id;
+        ammo.itemName = name;
+        ammo.description = description;
+        ammo.category = ItemCategory.Materials;
+        ammo.type = type;
         ammo.maxStackSize = maxStack;
         ammo.sellPrice = 1;
         ammo.buyPrice = 3;
         ammo.weight = weight;
         ammo.rarity = ItemRarity.Standard;
+        
         return ammo;
     }
 
     private Item CreateArmor(int id, string name, string description, ItemType type, int defense, float weight)
     {
-        Item armor = new Item(id, name, description, ItemCategory.Armor, type);
+        Item armor = ScriptableObject.CreateInstance<Item>();
+        
+        armor.id = id;
+        armor.itemName = name;
+        armor.description = description;
+        armor.category = ItemCategory.Armor;
+        armor.type = type;
         armor.defensePower = defense;
         armor.sellPrice = defense * 20;
         armor.buyPrice = defense * 40;
         armor.weight = weight;
         armor.rarity = ItemRarity.Standard;
+        armor.hasDurability = true;
+        armor.maxDurability = 100f;
+        armor.currentDurability = 100f;
+        
         return armor;
     }
 
     private Item CreateConsumable(int id, string name, string description, ItemType type, int hp, int sanity, int maxStack, float weight, bool isUnique = false, int maxPerRun = -1)
     {
-        Item consumable = new Item(id, name, description, ItemCategory.Consumables, type);
+        Item consumable = ScriptableObject.CreateInstance<Item>();
+        
+        consumable.id = id;
+        consumable.itemName = name;
+        consumable.description = description;
+        consumable.category = ItemCategory.Consumables;
+        consumable.type = type;
         consumable.isConsumable = true;
         consumable.hpRestore = hp;
         consumable.sanityRestore = sanity;
@@ -522,17 +567,25 @@ public class LootSystem : MonoBehaviour
         consumable.isUnique = isUnique;
         consumable.maxPerRun = maxPerRun;
         consumable.rarity = isUnique ? ItemRarity.ExpeditionGrade : ItemRarity.Makeshift;
+        
         return consumable;
     }
 
     private Item CreateKeyItem(int id, string name, string description, bool isUnique = true, int maxPerRun = 1)
     {
-        Item keyItem = new Item(id, name, description, ItemCategory.KeyItems, ItemType.Misc);
+        Item keyItem = ScriptableObject.CreateInstance<Item>();
+        
+        keyItem.id = id;
+        keyItem.itemName = name;
+        keyItem.description = description;
+        keyItem.category = ItemCategory.KeyItems;
+        keyItem.type = ItemType.Misc;
         keyItem.sellPrice = 0; // Key items usually can't be sold
         keyItem.weight = 0.1f;
         keyItem.isUnique = isUnique;
         keyItem.maxPerRun = maxPerRun;
         keyItem.rarity = ItemRarity.Standard;
+        
         return keyItem;
     }
 }

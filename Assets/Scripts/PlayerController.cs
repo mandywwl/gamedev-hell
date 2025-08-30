@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -33,6 +34,9 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Layer mask for interactable objects")]
     [SerializeField] private LayerMask interactableLayer = -1;
 
+    [Header("Inventory")]
+    [Tooltip("Reference to the Inventory UI Manager (optional - will auto-find if not assigned)")]
+    [SerializeField] private InventoryUIManager inventoryUIManager;
 
     // cached
     private Rigidbody2D rb;
@@ -60,11 +64,25 @@ public class PlayerController : MonoBehaviour
         rb.interpolation  = RigidbodyInterpolation2D.Interpolate;
         rb.freezeRotation = true; // avoid accidental torque/rotation
     }
+
+    void Start()
+    {
+        // Auto-find inventory UI manager if not assigned
+        if (inventoryUIManager == null)
+        {
+            inventoryUIManager = FindObjectOfType<InventoryUIManager>();
+            if (inventoryUIManager == null)
+            {
+                Debug.LogWarning("InventoryUIManager not found in scene. Inventory functionality will not work.");
+            }
+        }
+    }
     
     void Update()
     {
         HandleMovement();
         HandleInteraction();
+        HandleInventoryInput();
     }
 
     void HandleMovement()
@@ -118,6 +136,47 @@ public class PlayerController : MonoBehaviour
         // Update nearby chest detection
         UpdateNearbyChest();
     }
+
+    private void HandleInventoryInput()
+    {
+        // Handle inventory toggle with "I" key
+        if (Input.GetKeyDown(KeyCode.I))
+        {
+            ToggleInventory();
+        }
+    }
+
+    private void ToggleInventory()
+    {
+        if (inventoryUIManager != null)
+        {
+            inventoryUIManager.ToggleInventory();
+        }
+        else
+        {
+            Debug.LogWarning("Cannot open inventory - InventoryUIManager not found!");
+        }
+    }
+
+    // Public method to open inventory (can be called from other scripts)
+    public void OpenInventory()
+    {
+        if (inventoryUIManager != null)
+        {
+            inventoryUIManager.OpenInventory();
+        }
+    }
+
+    // Public method to close inventory (can be called from other scripts)
+    public void CloseInventory()
+    {
+        if (inventoryUIManager != null)
+        {
+            inventoryUIManager.CloseInventory();
+        }
+    }
+
+
 
     private void TryInteractWithChest()
     {

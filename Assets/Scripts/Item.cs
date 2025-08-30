@@ -1,12 +1,11 @@
 using UnityEngine;
 
-[System.Serializable]
-public class Item
+[CreateAssetMenu(fileName = "New Item", menuName = "Inventory/Item")]
+public class Item : ScriptableObject
 {
     public int id;
     public string itemName;
     public string description;
-    public Sprite icon;
     public ItemCategory category;
     public ItemType type;
     public int maxStackSize = 1;
@@ -19,6 +18,10 @@ public class Item
     public int defensePower = 0;
     public int hpRestore = 0;
     public int sanityRestore = 0;
+
+    // Icon for UI representation
+    [Header("Visual")]
+    public Sprite icon;
 
     // Durability system for weapons/armor
     [Header("Durability")]
@@ -52,14 +55,21 @@ public class Item
     public float minStatModifier = 0.8f;
     public float maxStatModifier = 1.3f;
 
-    public Item(int id, string name, string description, ItemCategory category, ItemType type = ItemType.Misc)
+    void OnEnable()
     {
-        this.id = id;
-        this.itemName = name;
-        this.description = description;
-        this.category = category;
-        this.type = type;
+        // Apply default templates when the asset is created/loaded
+        if (string.IsNullOrEmpty(itemName))
+        {
+            ApplyDefaultTemplate();
+        }
+    }
 
+    // Apply realistic defaults for each weapon/item type
+    private void ApplyDefaultTemplate()
+    {
+        // Set basic info based on type
+        itemName = type.ToString().Replace("_", " ");
+        
         // Set durability for weapons and armor
         if (category == ItemCategory.Weapons || category == ItemCategory.Armor)
         {
@@ -67,13 +77,6 @@ public class Item
             currentDurability = maxDurability;
         }
 
-        // Apply default templates based on item type
-        ApplyDefaultTemplate();
-    }
-
-    // Apply realistic defaults for each weapon/item type
-    private void ApplyDefaultTemplate()
-    {
         switch (type)
         {
             // === ASSAULT RIFLES ===
@@ -465,9 +468,15 @@ public class Item
     {
         if (!canBeModified) return this;
 
-        Item modifiedItem = new Item(id, itemName + suffix, description, category, type);
+        // Create a new instance (not asset) for runtime modifications
+        Item modifiedItem = CreateInstance<Item>();
         
         // Copy all base properties
+        modifiedItem.id = id;
+        modifiedItem.itemName = itemName + suffix;
+        modifiedItem.description = description;
+        modifiedItem.category = category;
+        modifiedItem.type = type;
         modifiedItem.icon = icon;
         modifiedItem.maxStackSize = maxStackSize;
         modifiedItem.sellPrice = Mathf.RoundToInt(sellPrice * statModifier);

@@ -153,15 +153,93 @@ public class ItemDatabaseValidator : EditorWindow
         {
             if (item != null && !ValidateItem(item))
             {
-                // Create a new item with defaults and copy properties
-                Item defaultItem = new Item(item.id, item.itemName, item.description, item.category, item.type);
+                // Create a new item with defaults using ScriptableObject.CreateInstance
+                Item defaultItem = ScriptableObject.CreateInstance<Item>();
+                defaultItem.id = item.id;
+                defaultItem.itemName = item.itemName;
+                defaultItem.description = item.description;
+                defaultItem.category = item.category;
+                defaultItem.type = item.type;
+                
+                // Apply defaults by calling the template method
+                ApplyDefaultsToItem(defaultItem);
+                
+                // Copy defaults back to the original item
                 CopyDefaults(defaultItem, item);
                 fixedCount++;
+                
+                // Clean up the temporary item
+                DestroyImmediate(defaultItem);
             }
         }
         
         EditorUtility.SetDirty(lootSystem);
         Debug.Log($"Fixed {fixedCount} items with default templates");
+    }
+    
+    void ApplyDefaultsToItem(Item item)
+    {
+        // Set basic info based on type
+        item.itemName = item.type.ToString().Replace("_", " ");
+        
+        // Set durability for weapons and armor
+        if (item.category == ItemCategory.Weapons || item.category == ItemCategory.Armor)
+        {
+            item.hasDurability = true;
+            item.currentDurability = item.maxDurability;
+        }
+
+        // Apply the same defaults logic from Item.ApplyDefaultTemplate()
+        switch (item.type)
+        {
+            case ItemType.M4A1:
+                item.attackPower = 30;
+                item.requiredAmmoType = ItemType.Ammo_556x45_NATO;
+                item.magazineSize = 30;
+                item.fireRate = 3.5f;
+                item.range = 50f;
+                item.weight = 4f;
+                item.sellPrice = 750;
+                item.buyPrice = 1500;
+                break;
+            case ItemType.FN_SCAR_MK17:
+                item.attackPower = 45;
+                item.requiredAmmoType = ItemType.Ammo_762x51_NATO;
+                item.magazineSize = 20;
+                item.fireRate = 2.8f;
+                item.range = 60f;
+                item.weight = 6f;
+                item.sellPrice = 1125;
+                item.buyPrice = 2250;
+                item.rarity = ItemRarity.ExpeditionGrade;
+                item.maxPerRun = 2;
+                break;
+            case ItemType.CompoundBow:
+                item.attackPower = 25;
+                item.requiredAmmoType = ItemType.Arrows;
+                item.magazineSize = 1;
+                item.fireRate = 1.5f;
+                item.range = 40f;
+                item.weight = 3f;
+                item.sellPrice = 625;
+                item.buyPrice = 1250;
+                item.rarity = ItemRarity.Standard;
+                break;
+            case ItemType.Bandages:
+                item.isConsumable = true;
+                item.hpRestore = 25;
+                item.sanityRestore = 0;
+                item.healingAmount = 25;
+                item.maxStackSize = 20;
+                item.weight = 0.2f;
+                item.sellPrice = 8;
+                item.buyPrice = 25;
+                break;
+            // Add more cases as needed
+            default:
+                // Keep current values for unknown types
+                break;
+        }
     }
     
     void CopyDefaults(Item source, Item target)
