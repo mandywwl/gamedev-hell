@@ -2299,6 +2299,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SmallChest Right
       objectReference: {fileID: 0}
+    - target: {fileID: 4263653037398929188, guid: f6a3bdc99e290114795d52fb2b4de660, type: 3}
+      propertyPath: m_SortingOrder
+      value: -1
+      objectReference: {fileID: 0}
     - target: {fileID: 6187917558504322383, guid: f6a3bdc99e290114795d52fb2b4de660, type: 3}
       propertyPath: m_Resource
       value: 
@@ -3864,6 +3868,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1338379151}
     m_Modifications:
+    - target: {fileID: 2501604879244633385, guid: b28a3fdd951623140a73ae1d38a3e94a, type: 3}
+      propertyPath: m_SortingOrder
+      value: -1
+      objectReference: {fileID: 0}
     - target: {fileID: 3033874867607863162, guid: b28a3fdd951623140a73ae1d38a3e94a, type: 3}
       propertyPath: m_LocalPosition.x
       value: -3
@@ -9130,6 +9138,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1338379151}
     m_Modifications:
+    - target: {fileID: 2501604879244633385, guid: b28a3fdd951623140a73ae1d38a3e94a, type: 3}
+      propertyPath: m_SortingOrder
+      value: -1
+      objectReference: {fileID: 0}
     - target: {fileID: 3033874867607863162, guid: b28a3fdd951623140a73ae1d38a3e94a, type: 3}
       propertyPath: m_LocalPosition.x
       value: -7.61
@@ -12606,7 +12618,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4263653037398929188, guid: f6a3bdc99e290114795d52fb2b4de660, type: 3}
       propertyPath: m_SortingOrder
-      value: 0
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 6187917558504322383, guid: f6a3bdc99e290114795d52fb2b4de660, type: 3}
       propertyPath: m_Resource
@@ -15766,6 +15778,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SmallChest Right (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 4263653037398929188, guid: f6a3bdc99e290114795d52fb2b4de660, type: 3}
+      propertyPath: m_SortingOrder
+      value: -1
+      objectReference: {fileID: 0}
     - target: {fileID: 6187917558504322383, guid: f6a3bdc99e290114795d52fb2b4de660, type: 3}
       propertyPath: m_Resource
       value: 
@@ -16825,6 +16841,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1338379151}
     m_Modifications:
+    - target: {fileID: 2501604879244633385, guid: b28a3fdd951623140a73ae1d38a3e94a, type: 3}
+      propertyPath: m_SortingOrder
+      value: -1
+      objectReference: {fileID: 0}
     - target: {fileID: 6473455624284665418, guid: b28a3fdd951623140a73ae1d38a3e94a, type: 3}
       propertyPath: m_Name
       value: SmallChest (3)
@@ -20135,6 +20155,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SmallChest
       objectReference: {fileID: 0}
+    - target: {fileID: 2501604879244633385, guid: b28a3fdd951623140a73ae1d38a3e94a, type: 3}
+      propertyPath: m_SortingOrder
+      value: -1
+      objectReference: {fileID: 0}
     - target: {fileID: 3033874867607863162, guid: b28a3fdd951623140a73ae1d38a3e94a, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.52
@@ -20250,6 +20274,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1338379151}
     m_Modifications:
+    - target: {fileID: 4546502263115745387, guid: 943ea87816e4d004ebf1b31b6b3807b8, type: 3}
+      propertyPath: m_SortingOrder
+      value: -1
+      objectReference: {fileID: 0}
     - target: {fileID: 6993066230489775806, guid: 943ea87816e4d004ebf1b31b6b3807b8, type: 3}
       propertyPath: m_Name
       value: LargeChest
