@@ -125,5 +125,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitName: Mutant1
   damage: 8
-  maxHP: 20
-  currentHP: 20
+  maxHP: 30
+  currentHP: 30
