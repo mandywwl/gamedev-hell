@@ -5225,6 +5225,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e8409ad7ed6e4538abf61bf8da41a78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  uniqueEnemyId: Boss_2
   combatSceneName: Combat
   bossIndex: 1
 --- !u!1 &520630341
@@ -6136,6 +6137,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e8409ad7ed6e4538abf61bf8da41a78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  uniqueEnemyId: HumanoidEnemy_3
   combatSceneName: Combat
   bossIndex: 0
 --- !u!1 &611621844
@@ -6538,6 +6540,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e8409ad7ed6e4538abf61bf8da41a78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  uniqueEnemyId: HumanoidEnemy_1
   combatSceneName: Combat
   bossIndex: 0
 --- !u!1 &702355630
@@ -6714,6 +6717,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e8409ad7ed6e4538abf61bf8da41a78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  uniqueEnemyId: Boss_3
   combatSceneName: Combat
   bossIndex: 1
 --- !u!61 &739582700
@@ -14740,6 +14744,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e8409ad7ed6e4538abf61bf8da41a78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  uniqueEnemyId: HumanoidEnemy_2
   combatSceneName: Combat
   bossIndex: 0
 --- !u!1001 &1086114117
@@ -18858,6 +18863,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e8409ad7ed6e4538abf61bf8da41a78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  uniqueEnemyId: Boss_1
   combatSceneName: Combat
   bossIndex: 1
 --- !u!1 &1752982604

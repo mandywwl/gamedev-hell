@@ -114,10 +114,14 @@ public class BattleSystem : MonoBehaviour
         if (state == BattleState.WON)
         {
             dialogueText.text = "You won!";
-            if(encounterKind == EncounterKind.BossEnemy)
+            if (encounterKind == EncounterKind.BossEnemy)
             {
                 PlayerPrefs.SetString("BattleResult", "WON");
                 SceneManager.LoadScene("EndGameScrn");
+            }
+            else
+            {
+                StartCoroutine(ReturnToMap()); // for regular enemy wins, start return sequence
             }
         }
         else if (state == BattleState.LOST)
@@ -129,14 +133,7 @@ public class BattleSystem : MonoBehaviour
         else if (state == BattleState.FLED)
         {
             dialogueText.text = "You have fled the battle!";
-            if (encounterKind == EncounterKind.BossEnemy)
-            {
-                SceneManager.LoadScene("NorthEastMap");
-            }
-            else
-            {
-                SceneManager.LoadScene("StartMap");
-            }
+            StartCoroutine(ReturnToMap()); // start return sequence
         }
     }
 
@@ -212,6 +209,41 @@ public class BattleSystem : MonoBehaviour
 
         state = BattleState.FLED;
         EndBattle();
+    }
+
+    IEnumerator ReturnToMap()
+    {
+
+        if (GameState.I != null && !string.IsNullOrEmpty(BattleTransfer.enemyId))
+        {
+            GameState.I.defeatedEnemies.Add(BattleTransfer.enemyId); // register enemy as defeated
+        }
+        
+        yield return new WaitForSeconds(2f); // wait 2s to allow player to read result message
+
+        string sceneToReturn = BattleTransfer.returnSceneName;
+        Vector3 positionToReturn = BattleTransfer.returnPosition;
+
+        if (GameState.I != null) // Check if GameState singleton is available
+        {
+            // Find or create a memory for the scene we are returning to
+            if (!GameState.I.SceneMem.TryGetValue(sceneToReturn, out var mem))
+            {
+                mem = new GameState.SceneMemory();
+                GameState.I.SceneMem[sceneToReturn] = mem;
+            }
+
+            // Save the player's position from before battle encounter
+            mem.lastPosition = positionToReturn;
+            mem.hasLastPosition = true;
+        }
+        else
+        {
+            Debug.LogWarning("GameState not found. Player position will not be restored.");
+        }
+
+        // Load previous map scene
+        SceneManager.LoadScene(sceneToReturn);
     }
 
     void PlayerTurn()

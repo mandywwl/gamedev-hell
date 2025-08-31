@@ -13,12 +13,16 @@ public class GameState : MonoBehaviour
         public string lastFacing; // optional
     }
 
-    // sceneName -> memory
+    // sceneName -> memory; for storing player position and state
     public Dictionary<string, SceneMemory> SceneMem = new();
 
     // Set by portal used to enter the next scene
     [HideInInspector]
     public string NextSpawnId = null;
+
+    // Track defeated enemies
+    public HashSet<string> defeatedEnemies = new();
+
 
     void Awake()
     {
