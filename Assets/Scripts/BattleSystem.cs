@@ -3,6 +3,7 @@ using System.Collections;
 using TMPro;
 using static BossEncounter;
 using UnityEngine.SceneManagement;
+using UnityEngine.SocialPlatforms;
 
 public enum BattleState { START, PLAYERTURN, ENEMYTURN, WON, LOST, FLED, BUSY}
 
@@ -10,6 +11,8 @@ public class BattleSystem : MonoBehaviour
 {
     [Header("Background")]
     public BackgroundManager backgroundManager;
+    public TMP_Text turnCounter;
+    private bool IsPlayerTurn;
 
     private GameObject enemyGO;
     private Animator enemyAnim;
@@ -21,7 +24,8 @@ public class BattleSystem : MonoBehaviour
     [Header("Player")]
     public GameObject playerPrefab;
     [Header("Enemy Prefabs")]
-    public GameObject[] enemyPrefabs;
+    public GameObject HumanoidPrefab;
+    public GameObject MutantPrefab;
     [Header("Boss Prefab")]
     public GameObject bossPrefab;
 
@@ -37,23 +41,27 @@ public class BattleSystem : MonoBehaviour
     public BattleHUD playerHUD;
     public BattleHUD enemyHUD;
 
+    [Header("Sound")]
+    public BattleSound battleSound;
+
     public BattleState state;
 
     //choose what type of enemy at runtime (default is random enemy)
-    public enum EncounterKind { RandomEnemy, Boss }
-    public EncounterKind encounterKind = EncounterKind.RandomEnemy;
+    public enum EncounterKind { HumanoidEnemy, MutantEnemy, BossEnemy}
+    public EncounterKind encounterKind = EncounterKind.HumanoidEnemy;
 
     void Start()
     {
-        if (BattleTransfer.encounterKind != EncounterKind.RandomEnemy)
+        if (BattleTransfer.encounterKind != EncounterKind.HumanoidEnemy)
         {
             encounterKind = BattleTransfer.encounterKind;
         }
-        //please use these below for respecitve triggers!
+        //please use these below for respective triggers!
         //BattleTransfer.encounterKind = EncounterKind.Boss;
         //BattleTransfer.encounterKind = EncounterKind.RandomEnemy;
 
         state = BattleState.START;
+        battleSound.EnemyAppearSound();
         StartCoroutine(SetupBattle());
     }
 
@@ -64,14 +72,17 @@ public class BattleSystem : MonoBehaviour
         playerUnit = playerGO.GetComponent<PlayerStats>();
 
         //choose and load enemy
-        if (encounterKind == EncounterKind.RandomEnemy)
+        if (encounterKind == EncounterKind.HumanoidEnemy)
         {
-            // Pick one randomly
-            int randomIndex = Random.Range(0, enemyPrefabs.Length);
-            chosenEnemyPrefab = enemyPrefabs[randomIndex];
+            chosenEnemyPrefab = HumanoidPrefab;
             backgroundManager.SetBackgroundToStreet();
         }
-        else if (encounterKind == EncounterKind.Boss)
+        else if (encounterKind == EncounterKind.MutantEnemy)
+        {
+            chosenEnemyPrefab = MutantPrefab;
+            backgroundManager.SetBackgroundToStreet();
+        }
+        else if (encounterKind == EncounterKind.BossEnemy)
         {
             chosenEnemyPrefab = bossPrefab;
             backgroundManager.SetBackgroundToStore();
@@ -101,7 +112,7 @@ public class BattleSystem : MonoBehaviour
         if (state == BattleState.WON)
         {
             dialogueText.text = "You won!";
-            if(encounterKind == EncounterKind.Boss)
+            if(encounterKind == EncounterKind.BossEnemy)
             {
                 PlayerPrefs.SetString("BattleResult", "WON");
                 SceneManager.LoadScene("EndGameScrn");
@@ -116,6 +127,14 @@ public class BattleSystem : MonoBehaviour
         else if (state == BattleState.FLED)
         {
             dialogueText.text = "You have fled the battle!";
+            if (encounterKind == EncounterKind.BossEnemy)
+            {
+                SceneManager.LoadScene("NorthEastMap");
+            }
+            else
+            {
+                SceneManager.LoadScene("StartMap");
+            }
         }
     }
 
@@ -154,25 +173,31 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator EnemyTurn()
     {
+        IsPlayerTurn = false;
+        UpdateCounterText(IsPlayerTurn);
+
         dialogueText.text = enemyUnit.unitName + " attacks!";
         enemyAnim.SetTrigger("Attack");
+        battleSound.EnemyAttackSound();
 
         yield return new WaitForSeconds(1f);
 
         bool isDead = playerUnit.TakeDamage(enemyUnit.damage,true);
-
+        battleSound.PlayerHurtSound();
         playerHUD.SetHP(playerUnit.currentHP);
 
         yield return new WaitForSeconds(1f);
 
         if (isDead)
         {
+            battleSound.PlayerDieSound();
             state = BattleState.LOST;
             EndBattle();
         }
         else
         {
             state = BattleState.PLAYERTURN;
+            battleSound.ReloadSound();
             PlayerTurn();
         }
     }
@@ -189,24 +214,27 @@ public class BattleSystem : MonoBehaviour
 
     void PlayerTurn()
     {
+        IsPlayerTurn = true;
+        UpdateCounterText(IsPlayerTurn);
         dialogueText.text = "Choose an action: ";
     }
 
     public void OnAttackButton()
     {
-        if (state != BattleState.PLAYERTURN)
+        if (state != BattleState.PLAYERTURN || Time.timeScale == 0f)
         {
             Debug.Log("Not your turn!");
             return;
         }
 
         state = BattleState.BUSY;
+        battleSound.PistolShootSound();
         StartCoroutine(PlayerAttack());
     }
 
     public void OnItemButton()
     {
-        if (state != BattleState.PLAYERTURN)
+        if (state != BattleState.PLAYERTURN || Time.timeScale == 0f)
         {
             Debug.Log("Not your turn!");
             return;
@@ -217,12 +245,26 @@ public class BattleSystem : MonoBehaviour
 
     public void OnRunButton()
     {
-        if (state != BattleState.PLAYERTURN)
+        if (state != BattleState.PLAYERTURN || Time.timeScale == 0f)
         {
             Debug.Log("Not your turn!");
             return;
         }
 
         StartCoroutine(PlayerFlee());
+    }
+
+    public void UpdateCounterText(bool c)
+    {
+        if (c)
+        {
+            turnCounter.text = "Player's Turn";
+            turnCounter.color = Color.green;
+        }
+        else
+        {
+            turnCounter.text = "Enemy's Turn";
+            turnCounter.color = Color.red;
+        }
     }
 }
