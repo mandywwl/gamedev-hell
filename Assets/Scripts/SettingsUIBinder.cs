@@ -85,12 +85,13 @@ public class SettingsUIBinder : MonoBehaviour
     private void UnbindListeners()
     {
         var sm = settingsManager.Instance;
+        if (sm == null) return; // Guard clause
         
-        if (brightness) brightness.onValueChanged.RemoveAllListeners();
-        if (sound) sound.onValueChanged.RemoveAllListeners();
+        if (brightness) brightness.onValueChanged.RemoveListener(sm.ChangeBrightness);
+        if (sound) sound.onValueChanged.RemoveListener(sm.ChangeSound);
         //if (quality) quality.onValueChanged.RemoveAllListeners();
-        if (resolution) resolution.onValueChanged.RemoveAllListeners();
-        if (fullscreen) fullscreen.onValueChanged.RemoveAllListeners();
+        if (resolution) resolution.onValueChanged.RemoveListener(sm.ChangeResolution);
+        if (fullscreen) fullscreen.onValueChanged.RemoveListener((bool isOn) => sm.ChangeFullScreen(isOn));
     }
 
     bool GetSavedFullscreen()

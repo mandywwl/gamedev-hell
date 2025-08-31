@@ -261,7 +261,6 @@ public class PlayerStats : MonoBehaviour
     public bool IsDead()
     {
         return GetCurrentHP() <= 0f;
-        Debug.Log($"Player is dead");
     }
     
     /// Check if player is at low health

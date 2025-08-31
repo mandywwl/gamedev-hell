@@ -2,19 +2,17 @@ using UnityEngine;
 
 public class playSounds : MonoBehaviour
 {
-    public AudioClip hoverSound;
-    public AudioClip selectSound;
+    public AudioClip uiHover;
+    public AudioClip uiClick;
 
     public void PlayHoverSound()
     {
-        if (hoverSound != null)
-            AudioManager.I.PlayUI(hoverSound);
+        if (uiHover) AudioManager.I.PlayUI(uiHover);
     }
 
     public void PlaySelectSound()
     {
-        if (selectSound != null)
-            AudioManager.I.PlayUI(selectSound);
+        if (uiClick) AudioManager.I.PlayUI(uiClick);
     }
 
 }

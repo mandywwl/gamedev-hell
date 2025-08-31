@@ -3,12 +3,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.Audio;
 using TMPro;
 
 public class settingsManager : MonoBehaviour
 {
     public TMP_Dropdown ResDropDown;
     public Toggle FullScreenToggle;
+    public AudioMixer mainMixer;
 
     //public TMP_Dropdown QualityDropDown;
 
@@ -81,6 +83,11 @@ public class settingsManager : MonoBehaviour
         }
         //QualityDropDown.AddOptions(SelectedQualityList);
 
+        // Load saved volume and apply to mixers
+        float savedVolume = PlayerPrefs.GetFloat("sound", 1.0f); // Default to full volume (1.0)
+        Sound.value = savedVolume; // Make slider match saved value
+        ChangeSound(savedVolume);
+
     }
 
     public void ChangeResolution(int index)
@@ -120,11 +127,16 @@ public class settingsManager : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    public void ChangeSound(float value1)
+    public void ChangeSound(float value)
     {
-        PlayerPrefs.SetFloat("sound", value1);
-        AudioListener.volume = PlayerPrefs.GetFloat("sound");
-        // REMEMBER TO ADD THIS TO EVERY SCENE ----> AudioListener.volume = PlayerPrefs.GetFloat("sound");
+        // Save slider's raw value (0-1) so we can load it later
+        PlayerPrefs.SetFloat("sound", value);
+
+        // Convert linear value to mixer log scale (dB) //...use small minimum value to prevent log10(0) error
+        float volumeInDb = Mathf.Log10(Mathf.Max(value, 0.0001f)) * 20f;
+        
+        // Set exposed param on AudioMixer
+        mainMixer.SetFloat("UIVolume", volumeInDb); // NOTE: Make sure name matches name created in the Audio Mixer window!
 
         PlayerPrefs.Save();
     }
