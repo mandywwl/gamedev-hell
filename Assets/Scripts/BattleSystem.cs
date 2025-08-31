@@ -61,7 +61,6 @@ public class BattleSystem : MonoBehaviour
         //BattleTransfer.encounterKind = EncounterKind.RandomEnemy;
 
         state = BattleState.START;
-        battleSound.EnemyAppearSound();
         StartCoroutine(SetupBattle());
     }
 
@@ -100,6 +99,9 @@ public class BattleSystem : MonoBehaviour
 
         enemyAnim = enemyGO.GetComponent<Animator>();
         enemyAnim.Play("Idle");
+
+        yield return null;
+        battleSound.EnemyAppearSound();
 
         yield return new WaitForSeconds(2f);
 

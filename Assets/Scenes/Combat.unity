@@ -1868,8 +1868,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 715985011}
-  - component: {fileID: 715985010}
   - component: {fileID: 715985009}
+  - component: {fileID: 715985010}
   m_Layer: 0
   m_Name: BattleSoundManager
   m_TagString: Untagged
