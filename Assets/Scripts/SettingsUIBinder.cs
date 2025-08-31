@@ -30,8 +30,8 @@ public class SettingsUIBinder : MonoBehaviour
 
     void Start()
     {
-        AllResolutions = Screen.resolutions;
-
+        // Populate resolution and quality dropdowns
+        Resolution[] AllResolutions = Screen.resolutions;
         List<string> resolutionStringList = new List<string>();
         string newRes;
         foreach (Resolution res in AllResolutions)
@@ -45,15 +45,22 @@ public class SettingsUIBinder : MonoBehaviour
         }
         resolution.AddOptions(resolutionStringList);
 
-        AllQualitynames = QualitySettings.names;
-        foreach (string qual in AllQualitynames)
+        // Give the populated list to the settingsManager so it knows what resolutions are available.
+        if (settingsManager.Instance != null)
         {
-            SelectedQualityList.Add(qual);
+            settingsManager.Instance.Resolutions = SelectedResolutionList;
         }
-        //quality.AddOptions(SelectedQualityList);
-
-        //if (quality) quality.SetValueWithoutNotify(PlayerPrefs.GetInt("quality", QualitySettings.GetQualityLevel()));
+        
         if (resolution) resolution.SetValueWithoutNotify(PlayerPrefs.GetInt("resolution", resolution.value));
+
+        // AllQualitynames = QualitySettings.names;
+        // foreach (string qual in AllQualitynames)
+        // {
+        //     SelectedQualityList.Add(qual);
+        // }
+        //quality.AddOptions(SelectedQualityList);
+        //if (quality) quality.SetValueWithoutNotify(PlayerPrefs.GetInt("quality", QualitySettings.GetQualityLevel()));
+        
     }
 
     void OnEnable()

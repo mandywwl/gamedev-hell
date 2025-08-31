@@ -1,137 +1,165 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
-using TMPro;
+// using UnityEngine.UI;
+// using TMPro;
 
 public class settingsManager : MonoBehaviour
 {
-    public TMP_Dropdown ResDropDown;
-    public Toggle FullScreenToggle;
+    // public TMP_Dropdown ResDropDown;
+    // public TMP_Dropdown QualityDropDown;
+    // public Toggle FullScreenToggle;
+    // public Slider Brightness;
+    // public Slider Sound;
 
-    //public TMP_Dropdown QualityDropDown;
+    // public static settingsManager Instance { get; private set; }
+    private static settingsManager _instance;
 
-    public Slider Brightness;
-    [SerializeField] private VolumeProfile brightnessProfile;
+    public static settingsManager Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                // First, try to find an existing instance in the scene
+                _instance = FindObjectOfType<settingsManager>();
+            }
+
+            if (_instance == null)
+            {
+                // If no instance exists, create a new GameObject and add this script to it
+                GameObject singletonObject = new GameObject("settingsManager (Singleton)");
+                _instance = singletonObject.AddComponent<settingsManager>();
+                Debug.Log("settingsManager instance created automatically.");
+            }
+            
+            return _instance;
+        }
+    }
+
+    // Serialized Field for brightness profile
+    [SerializeField] private VolumeProfile brightnessProfile; // NOTE: Assign in Inspector
     private ColorAdjustments colourAdj;
 
-    public Slider Sound;
+    // List populated by SettingsUIBinder script
+    public List<Resolution> Resolutions;
+    
+    private bool IsFullScreen;
+    private int SelectedResolution;
 
-    Resolution[] AllResolutions;
-    bool IsFullScreen;
-    int SelectedResolution;
-    List<Resolution> SelectedResolutionList = new List<Resolution>();
+    // List<Resolution> SelectedResolutionList = new List<Resolution>();
 
-    int SelectedQuality;
-    List<string> SelectedQualityList = new List<string>();
-    string[] AllQualitynames;
-
-    public static settingsManager Instance { get; private set; }
+    // int SelectedQuality;
+    // List<string> SelectedQualityList = new List<string>();
+    // string[] AllQualitynames;
 
     void Awake()
     {
-        if (brightnessProfile == null)
+        // if (brightnessProfile == null)
+        // {
+        //     Debug.LogError("No Volume Profile assigned!");
+        //     return;
+        // }
+
+        // if (!brightnessProfile.TryGet(out colourAdj))
+        // {
+        //     Debug.LogError("BrightnessSetting profile has no ColorAdjustments override!");
+        //     return;
+        // }
+
+        // colourAdj.postExposure.overrideState = true;
+
+        if (_instance != null && _instance != this)
         {
-            Debug.LogError("No Volume Profile assigned!");
+            Destroy(gameObject);
             return;
         }
 
-        if (!brightnessProfile.TryGet(out colourAdj))
-        {
-            Debug.LogError("BrightnessSetting profile has no ColorAdjustments override!");
-            return;
-        }
-
-        colourAdj.postExposure.overrideState = true;
-
-        if (Instance != null && Instance != this) 
-        { 
-            Destroy(gameObject); 
-            return; 
-        }
-
-        Instance = this;
+        _instance = this;
         DontDestroyOnLoad(gameObject);
+        
+        // Brightness setup
+        if (brightnessProfile != null && brightnessProfile.TryGet(out colourAdj))
+        {
+            colourAdj.postExposure.overrideState = true;
+        }
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        IsFullScreen = true;
-        AllResolutions = Screen.resolutions;
+    // void Start()
+    // {
+    //     IsFullScreen = true;
+    //     AllResolutions = Screen.resolutions;
 
-        List<string> resolutionStringList = new List<string>();
-        string newRes;
-        foreach (Resolution res in AllResolutions)
-        {
-            newRes = res.width.ToString() + " x " + res.height.ToString();
-            if (!resolutionStringList.Contains(newRes))
-            {
-                resolutionStringList.Add(newRes);
-                SelectedResolutionList.Add(res);
-            }
-        }
-        ResDropDown.AddOptions(resolutionStringList);
+    //     List<string> resolutionStringList = new List<string>();
+    //     string newRes;
+    //     foreach (Resolution res in AllResolutions)
+    //     {
+    //         newRes = res.width.ToString() + " x " + res.height.ToString();
+    //         if (!resolutionStringList.Contains(newRes))
+    //         {
+    //             resolutionStringList.Add(newRes);
+    //             SelectedResolutionList.Add(res);
+    //         }
+    //     }
+    //     ResDropDown.AddOptions(resolutionStringList);
 
-        AllQualitynames = QualitySettings.names;
-        foreach (string qual in AllQualitynames)
-        {
-            SelectedQualityList.Add(qual);
-        }
-        //QualityDropDown.AddOptions(SelectedQualityList);
+    //     AllQualitynames = QualitySettings.names;
+    //     foreach (string qual in AllQualitynames)
+    //     {
+    //         SelectedQualityList.Add(qual);
+    //     }
+    //     //QualityDropDown.AddOptions(SelectedQualityList);
 
-    }
+    // }
 
     public void ChangeResolution(int index)
     {
-        if (SelectedResolutionList == null || SelectedResolutionList.Count == 0) return;
+        if (Resolutions == null || Resolutions.Count == 0) return;
 
         PlayerPrefs.SetInt("resolution", index);
         SelectedResolution = index;
-        Screen.SetResolution(SelectedResolutionList[SelectedResolution].width, SelectedResolutionList[SelectedResolution].height, IsFullScreen);
-
+        Screen.SetResolution(Resolutions[SelectedResolution].width, Resolutions[SelectedResolution].height, IsFullScreen);
         PlayerPrefs.Save();
     }
 
-    public void ChangeQuality(int index)
-    {
-        PlayerPrefs.SetInt("quality", index);
-        SelectedQuality = index;
-        QualitySettings.SetQualityLevel(SelectedQuality, true);
+    // public void ChangeQuality(int index)
+    // {
+    //     PlayerPrefs.SetInt("quality", index);
+    //     SelectedQuality = index;
+    //     QualitySettings.SetQualityLevel(SelectedQuality, true);
 
-        PlayerPrefs.Save();
-    }
+    //     PlayerPrefs.Save();
+    // }
 
     public void ChangeFullScreen(bool isOn)
     {
         IsFullScreen = isOn;
         PlayerPrefs.SetString("togglefullscreen", IsFullScreen.ToString());
-        Screen.SetResolution(SelectedResolutionList[SelectedResolution].width, SelectedResolutionList[SelectedResolution].height, IsFullScreen);
+
+        if (Resolutions != null && Resolutions.Count > SelectedResolution)
+        {
+            Screen.SetResolution(Resolutions[SelectedResolution].width, Resolutions[SelectedResolution].height, IsFullScreen);
+        }
 
         PlayerPrefs.Save();
     }
 
-    public void ChangeBrightness(float value1)
+    public void ChangeBrightness(float value)
     {
-        PlayerPrefs.SetFloat("brightness", value1);
-        colourAdj.postExposure.value = PlayerPrefs.GetFloat("brightness");
-
+        PlayerPrefs.SetFloat("brightness", value);
+        if (colourAdj != null)
+        {
+            colourAdj.postExposure.value = value;
+        }
         PlayerPrefs.Save();
     }
 
-    public void ChangeSound(float value1)
+    public void ChangeSound(float value)
     {
-        PlayerPrefs.SetFloat("sound", value1);
-        AudioListener.volume = PlayerPrefs.GetFloat("sound");
-        // REMEMBER TO ADD THIS TO EVERY SCENE ----> AudioListener.volume = PlayerPrefs.GetFloat("sound");
-
+        PlayerPrefs.SetFloat("sound", value);
+        AudioListener.volume = value;
         PlayerPrefs.Save();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
 }

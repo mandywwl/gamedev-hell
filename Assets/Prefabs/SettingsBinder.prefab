@@ -46,6 +46,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   brightness: {fileID: 0}
   sound: {fileID: 0}
-  quality: {fileID: 0}
   resolution: {fileID: 0}
   fullscreen: {fileID: 0}

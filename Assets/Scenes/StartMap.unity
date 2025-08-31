@@ -3111,10 +3111,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1086114120}
     - target: {fileID: 865799075198519169, guid: ad62134bd2914a342bd5417a6a0cb39f, type: 3}
-      propertyPath: quality
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 865799075198519169, guid: ad62134bd2914a342bd5417a6a0cb39f, type: 3}
       propertyPath: brightness
       value: 
       objectReference: {fileID: 1086114121}
@@ -3840,8 +3836,8 @@ Transform:
   - {fileID: 956344663}
   - {fileID: 1440472201}
   - {fileID: 29502385}
-  - {fileID: 193457357}
   - {fileID: 1183098491}
+  - {fileID: 193457357}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &260983913
@@ -6854,7 +6850,7 @@ GameObject:
   - component: {fileID: 771851748}
   - component: {fileID: 771851746}
   m_Layer: 0
-  m_Name: EventManager
+  m_Name: PauseMenuManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14759,10 +14755,6 @@ PrefabInstance:
       propertyPath: m_Delegates.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 771851746}
-    - target: {fileID: 580742405261537049, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
-      propertyPath: m_Delegates.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: PlayHoverSound
-      objectReference: {fileID: 0}
     - target: {fileID: 822749847856603365, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -14779,36 +14771,16 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 1844141173}
-    - target: {fileID: 994519513729289418, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
-      propertyPath: m_RenderMode
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 994519513729289418, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
-      propertyPath: m_SortingOrder
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 994519513729289418, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
-      propertyPath: m_SortingLayerID
-      value: -1831150519
-      objectReference: {fileID: 0}
     - target: {fileID: 2537124599945913928, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_Delegates.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 771851746}
-    - target: {fileID: 2537124599945913928, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
-      propertyPath: m_Delegates.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: PlayHoverSound
-      objectReference: {fileID: 0}
     - target: {fileID: 3731637280175534216, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3731637280175534216, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3731637280175534216, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
-      propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3838304126118579839, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
@@ -14823,14 +14795,6 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
       objectReference: {fileID: 771851746}
-    - target: {fileID: 4710229813312335338, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: QuitGame
-      objectReference: {fileID: 0}
-    - target: {fileID: 4710229813312335338, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: PlaySelectSound
-      objectReference: {fileID: 0}
     - target: {fileID: 5387505558976605456, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -14839,22 +14803,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
       objectReference: {fileID: 771851746}
-    - target: {fileID: 5387505558976605456, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: ResumeGame
-      objectReference: {fileID: 0}
-    - target: {fileID: 5387505558976605456, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: PlaySelectSound
-      objectReference: {fileID: 0}
     - target: {fileID: 5431422787047431853, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_Delegates.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 771851746}
-    - target: {fileID: 5431422787047431853, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
-      propertyPath: m_Delegates.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: PlayHoverSound
-      objectReference: {fileID: 0}
     - target: {fileID: 5970146285239664244, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -14863,14 +14815,6 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
       objectReference: {fileID: 771851746}
-    - target: {fileID: 5970146285239664244, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: CloseSettings
-      objectReference: {fileID: 0}
-    - target: {fileID: 5970146285239664244, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: PlaySelectSound
-      objectReference: {fileID: 0}
     - target: {fileID: 6070539184298591837, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -14959,10 +14903,6 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6115064338025139362, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 6388849838908282626, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -14983,26 +14923,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
       objectReference: {fileID: 771851746}
-    - target: {fileID: 7845283114431766265, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: OpenSettings
-      objectReference: {fileID: 0}
-    - target: {fileID: 7845283114431766265, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: PlaySelectSound
-      objectReference: {fileID: 0}
-    - target: {fileID: 7923883283010270818, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 8899504576603371888, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_Delegates.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 771851746}
-    - target: {fileID: 8899504576603371888, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
-      propertyPath: m_Delegates.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: PlayHoverSound
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -15073,6 +14997,7 @@ GameObject:
   - component: {fileID: 1092928919}
   - component: {fileID: 1092928921}
   - component: {fileID: 1092928920}
+  - component: {fileID: 1092928922}
   m_Layer: 0
   m_Name: Systems (DDOL)
   m_TagString: Untagged
@@ -15126,6 +15051,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   NextSpawnId: 
+--- !u!114 &1092928922
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1092928918}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3514e002164802f4fbce474be55ebb04, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  brightnessProfile: {fileID: 11400000, guid: 61e5b819aba4ec4439a578bb85346f48, type: 2}
 --- !u!1 &1117335020
 GameObject:
   m_ObjectHideFlags: 0
