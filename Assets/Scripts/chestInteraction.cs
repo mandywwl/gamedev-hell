@@ -29,13 +29,6 @@ public class ChestInteraction : MonoBehaviour
     void Start()
     {
         animator = GetComponent<Animator>();
-        audioSource = GetComponent<AudioSource>();
-
-        // Add AudioSource if it doesn't exist
-        if (audioSource == null)
-        {
-            audioSource = gameObject.AddComponent<AudioSource>();
-        }
 
         // Make sure the chest has a trigger collider
         if (GetComponent<Collider2D>() == null)
@@ -74,11 +67,9 @@ public class ChestInteraction : MonoBehaviour
 
         isOpened = true;
 
-        // Play chest opening sound
-        if (audioSource != null && openChest != null)
-        {
-            audioSource.PlayOneShot(openChest);
-        }
+        // Play chest opening sound via AudioManager
+        if (openChest != null)
+            AudioManager.I.PlaySFX(openChest);
 
         // Play opening animation
         if (animator != null)

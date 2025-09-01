@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.Audio;
 // using UnityEngine.UI;
 // using TMPro;
 
@@ -37,6 +38,7 @@ public class settingsManager : MonoBehaviour
             return _instance;
         }
     }
+    public AudioMixer mainMixer;
 
     // Serialized Field for brightness profile
     [SerializeField] private VolumeProfile brightnessProfile; // NOTE: Assign in Inspector
@@ -157,8 +159,15 @@ public class settingsManager : MonoBehaviour
 
     public void ChangeSound(float value)
     {
+        // Save slider's raw value (0-1) so we can load it later
         PlayerPrefs.SetFloat("sound", value);
-        AudioListener.volume = value;
+
+        // Convert linear value to mixer log scale (dB) //...use small minimum value to prevent log10(0) error
+        float volumeInDb = Mathf.Log10(Mathf.Max(value, 0.0001f)) * 20f;
+        
+        // Set exposed param on AudioMixer
+        mainMixer.SetFloat("UIVolume", volumeInDb); // NOTE: Make sure name matches name created in the Audio Mixer window!
+
         PlayerPrefs.Save();
     }
 

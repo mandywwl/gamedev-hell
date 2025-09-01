@@ -25,7 +25,7 @@ public class PlayerSpawner : MonoBehaviour
         // Use requested SpawnPoint
         if (!string.IsNullOrEmpty(GameState.I.NextSpawnId))
         {
-            var target = FindObjectsOfType<SpawnPoint>(true)
+            var target = FindObjectsByType<SpawnPoint>(FindObjectsSortMode.None)
                          .FirstOrDefault(s => s.Id == GameState.I.NextSpawnId);
             if (target != null)
             {

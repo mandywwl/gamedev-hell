@@ -25,8 +25,8 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Rotate Animator inputs by -45° if sprites are authored to iso tile axes.")]
     [SerializeField] private bool rotateAnimatorInputBy45 = false;
 
-    [Header("Rendering")]
-    [SerializeField] private int sortingMultiplier = 1; // TODO: tweak
+    // [Header("Rendering")]
+    // [SerializeField] private int sortingMultiplier = 1; // TODO: tweak
 
     [Header("Interaction")]
     [Tooltip("Range to detect interactable objects like chests")]
@@ -115,7 +115,7 @@ public class PlayerController : MonoBehaviour
         // Auto-find inventory UI manager if not assigned
         if (inventoryUIManager == null)
         {
-            inventoryUIManager = FindObjectOfType<InventoryUIManager>();
+            inventoryUIManager = FindFirstObjectByType<InventoryUIManager>(); // unity 6 update
             if (inventoryUIManager == null)
             {
                 Debug.LogWarning("InventoryUIManager not found in scene. Inventory functionality will not work.");

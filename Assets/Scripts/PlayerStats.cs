@@ -252,16 +252,15 @@ public class PlayerStats : MonoBehaviour
 
         return false;
     }
-
+    
     #endregion
-
+    
     #region Status Checks
-
+ 
     /// Check if player is dead   
     public bool IsDead()
     {
         return GetCurrentHP() <= 0f;
-        Debug.Log($"Player is dead");
     }
 
     /// Check if player is at low health
