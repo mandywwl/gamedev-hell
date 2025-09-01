@@ -8,7 +8,7 @@ public class PauseManager : MonoBehaviour
     [SerializeField] private GameObject pausePanel;
     [SerializeField] private GameObject settingsMenu;
 
-     void OnEnable()
+    void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
@@ -20,12 +20,27 @@ public class PauseManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // Try to re-bind UI references in the new scene
-        if (pausePanel == null)
-            pausePanel = GameObject.FindWithTag("PausePanel");
+        // Always rebind on scene load (inactive-safe)
+        pausePanel = FindTaggedInScene(scene, "PausePanel");
+        settingsMenu = FindTaggedInScene(scene, "SettingsMenu");
 
-        if (settingsMenu == null)
-            settingsMenu = GameObject.FindWithTag("SettingsMenu");
+        // Safety: ensure menus start hidden and timescale normal
+        if (pausePanel) pausePanel.SetActive(false);
+        if (settingsMenu) settingsMenu.SetActive(false);
+        isPaused = false;
+        Time.timeScale = 1f;
+
+        // Optional: cursor default per mode
+        if (GameState.I != null && GameState.I.CurrentMode == GameState.PlayMode.Exploration)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
     }
 
     public static bool isPaused = false;
@@ -43,18 +58,37 @@ public class PauseManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            // If the settings menu is open, Esc should close it. Otherwise, toggle the pause state.
-            if (settingsMenu != null && settingsMenu.activeSelf)
+            if (GameState.I != null)
             {
-                CloseSettings();
-            }
-            else
-            {
-                TogglePause();
+                if (GameState.I.CurrentMode == GameState.PlayMode.Exploration)
+                {
+                    if (settingsMenu != null && settingsMenu.activeSelf)
+                        CloseSettings();
+                    else
+                        TogglePause();
+                }
+                else if (GameState.I.CurrentMode == GameState.PlayMode.Combat)
+                {
+                    // In combat: don’t freeze Time.timeScale, just toggle UI
+                    if (settingsMenu != null && settingsMenu.activeSelf)
+                    {
+                        CloseSettings();
+                    }
+                    else if (pausePanel != null)
+                    {
+                        bool newState = !pausePanel.activeSelf;
+                        pausePanel.SetActive(newState);
+                        isPaused = newState;
+                    }
+
+                    // Keep cursor visible in combat
+                    Cursor.lockState = CursorLockMode.None;
+                    Cursor.visible = true;
+                }
             }
         }
     }
-    
+
     public void TogglePause()
     {
         isPaused = !isPaused;
@@ -73,7 +107,7 @@ public class PauseManager : MonoBehaviour
         Time.timeScale = 0;
         if (pausePanel != null)
             pausePanel.SetActive(true);
-        
+
         // Unlock and show the cursor to interact with the menu
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
@@ -85,10 +119,21 @@ public class PauseManager : MonoBehaviour
         if (pausePanel != null)
             pausePanel.SetActive(false);
 
+
         isPaused = false;
-        // Lock and hide the cursor for gameplay
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+
+        if (GameState.I != null && GameState.I.CurrentMode == GameState.PlayMode.Exploration)
+        {
+            // Exploration: lock cursor
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        else
+        {
+            // Combat: keep cursor visible
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
     }
 
     // Called by the Pause menu “Settings” button
@@ -110,4 +155,25 @@ public class PauseManager : MonoBehaviour
         Debug.Log("Quitting Game..."); // Good for testing in the editor
         Application.Quit();
     }
+    
+    // Helper that can find inactive tagged objects inside scene
+    private GameObject FindTaggedInScene(Scene scene, string tag)
+    {
+        var roots = scene.GetRootGameObjects();
+        for (int i = 0; i < roots.Length; i++)
+        {
+            // true => include inactive children
+            var trs = roots[i].GetComponentsInChildren<Transform>(true);
+            for (int j = 0; j < trs.Length; j++)
+            {
+                var t = trs[j];
+                if (t.CompareTag(tag))
+                    return t.gameObject;
+            }
+        }
+        return null;
+    }
+
+
+
 }
