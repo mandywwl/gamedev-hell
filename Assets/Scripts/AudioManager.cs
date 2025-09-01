@@ -11,12 +11,15 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioSource uiSource; // for all UI sounds
     [SerializeField] private AudioSource[] sfxSources; // for all non-UI sounds
 
+    [Header("Sanity Audio")]
+    [SerializeField] private AudioSource sanityWarningSource; // Optional dedicated source
+    [SerializeField] private AudioClip sanityWarningClip; // Clip to play when sanity drops
+
     [Header("Audio Mixer")]
     [SerializeField] private AudioMixer mainMixer;
 
     void Awake()
     {
-        // Standard singleton setup
         if (I != null && I != this)
         {
             Destroy(gameObject);
@@ -24,7 +27,7 @@ public class AudioManager : MonoBehaviour
         else
         {
             I = this;
-            DontDestroyOnLoad(gameObject); // persist across scenes
+            DontDestroyOnLoad(gameObject);
         }
     }
 
@@ -33,7 +36,6 @@ public class AudioManager : MonoBehaviour
     {
         if (clip == null) return;
 
-        // Find available AudioSource in the pool that isn't currently playing
         foreach (var source in sfxSources)
         {
             if (!source.isPlaying)
@@ -42,32 +44,50 @@ public class AudioManager : MonoBehaviour
                 return;
             }
         }
-        
-        // Optional fallback: If all sources busy, play on the first one anyway.
+
         if (sfxSources.Length > 0)
         {
             sfxSources[0].PlayOneShot(clip);
         }
     }
 
-
-
-    // Method to call for playing UI sounds
+    // Method for UI sounds
     public void PlayUI(AudioClip clip)
     {
         if (clip != null)
         {
-            uiSource.PlayOneShot(clip); // Use for overlapping UI sounds like hovers and clicks
+            uiSource.PlayOneShot(clip);
         }
     }
 
-    // Template for playing music // TODO: Expand?
+    // Method for music
     public void PlayMusic(AudioClip clip)
     {
         if (clip != null)
         {
             musicSource.clip = clip;
             musicSource.Play();
+        }
+    }
+
+    // Sanity Warning Playback
+    public void PlaySanityWarning()
+    {
+        if (sanityWarningSource != null && !sanityWarningSource.isPlaying)
+        {
+            sanityWarningSource.Play();
+        }
+        else if (sanityWarningClip != null)
+        {
+            PlaySFX(sanityWarningClip); // fallback to SFX pool
+        }
+    }
+
+    public void StopSanityWarning()
+    {
+        if (sanityWarningSource != null && sanityWarningSource.isPlaying)
+        {
+            sanityWarningSource.Stop();
         }
     }
 }
