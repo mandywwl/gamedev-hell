@@ -265,8 +265,6 @@ public class PlayerStats : MonoBehaviour
 
         if (InventorySystem.Instance != null && InventorySystem.Instance.HasItem(consumableItem, 1))
         {
-            // Remove item from inventory
-            InventorySystem.Instance.RemoveItem(consumableItem, 1);
 
             // Apply effects using float values from Item
             if (consumableItem.healingAmount > 0f)

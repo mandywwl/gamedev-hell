@@ -440,29 +440,6 @@ public class Item : ScriptableObject
         return isConsumable || (category == ItemCategory.Weapons && !IsBroken());
     }
 
-    public string GetCombatDescription()
-    {
-        if (isConsumable)
-        {
-            return $"Restores {hpRestore} HP, {sanityRestore} Sanity";
-        }
-        else if (category == ItemCategory.Weapons)
-        {
-            string ammoInfo = requiredAmmoType != ItemType.Misc ? $" (Uses {requiredAmmoType})" : "";
-            return $"Damage: {attackPower}{ammoInfo}, Durability: {GetDurabilityPercentage():F1}%";
-        }
-        return description;
-    }
-
-    public int GetActionCost()
-    {
-        if (category == ItemCategory.Weapons)
-            return 1; // Attacking costs 1 action
-        else if (isConsumable)
-            return 1; // Using items costs 1 action
-
-        return 0;
-    }
 
     public Item CreateModifiedCopy(float statModifier = 1f, string suffix = "")
     {

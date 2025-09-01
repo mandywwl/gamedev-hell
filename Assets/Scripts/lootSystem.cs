@@ -25,9 +25,6 @@ public class LootSystem : MonoBehaviour
             return;
         }
 
-        // Add to your existing inventory
-        InventorySystem.Instance.AddItem(medkit, quantity);
-
         // Update the HUD counter if the script exists in scene
         var counter = FindObjectOfType<MedkitCounterUI>();
         if (counter != null) counter.AddMedkit(quantity);
