@@ -1,29 +1,38 @@
 using UnityEngine;
+using System;
 
 public class SanityManager : MonoBehaviour
 {
     [Header("Sanity Settings")]
     public float maxSanity = 100f;
-    public float currentSanity = 100f;
+    [SerializeField] private float currentSanity = 100f;
     public float sanityDecayRate = 0.1667f; // Decays to 0 in 10 minutes
-
-    [Header("Audio")]
-    public AudioSource lowSanityAudio;
-    public AudioSource sanityLossSFX;
 
     [Header("Thresholds")]
     public float debuffThreshold = 50f;
     public float criticalThreshold = 20f;
 
+
     private bool isDebuffed = false;
     private bool isCritical = false;
+    private bool hasPlayedLowSanityAudio = false;
 
     private PlayerController playerController;
 
+    public Action<float, float> OnSanityChanged; 
+
+    public float CurrentSanity => currentSanity;
+
     void Start()
     {
-        playerController = FindAnyObjectByType<PlayerController>();
+        playerController = FindObjectOfType<PlayerController>();
+
         currentSanity = maxSanity;
+
+        if (AudioManager.I != null)
+            AudioManager.I.StopSanityWarning();
+
+        OnSanityChanged?.Invoke(currentSanity, maxSanity);
     }
 
     void Update()
@@ -34,11 +43,15 @@ public class SanityManager : MonoBehaviour
     public void ModifySanity(float amount)
     {
         currentSanity = Mathf.Clamp(currentSanity + amount, 0, maxSanity);
-
-        if (amount < 0 && sanityLossSFX != null && Mathf.Abs(amount) >= 5f)
-            sanityLossSFX.Play();
-
         CheckDebuffStates();
+        OnSanityChanged?.Invoke(currentSanity, maxSanity);
+    }
+
+    public void RestoreSanity(float amount)
+    {
+        currentSanity = Mathf.Min(currentSanity + amount, maxSanity);
+        CheckDebuffStates();
+        OnSanityChanged?.Invoke(currentSanity, maxSanity);
     }
 
     public void DecaySanityOverTime(float deltaTime)
@@ -48,6 +61,7 @@ public class SanityManager : MonoBehaviour
 
     private void CheckDebuffStates()
     {
+        // Debuff state
         if (currentSanity < debuffThreshold && !isDebuffed)
         {
             TriggerDebuff();
@@ -59,6 +73,7 @@ public class SanityManager : MonoBehaviour
             isDebuffed = false;
         }
 
+        // Critical state
         if (currentSanity < criticalThreshold && !isCritical)
         {
             TriggerCritical();
@@ -74,30 +89,35 @@ public class SanityManager : MonoBehaviour
     private void TriggerDebuff()
     {
         if (playerController != null)
-            playerController.SetSanitySpeedFactor(0.8f); // Reduce movement speed
+            playerController.SetSanitySpeedFactor(0.8f);
 
-        if (lowSanityAudio != null && !lowSanityAudio.isPlaying)
-            lowSanityAudio.Play();
+        if (!hasPlayedLowSanityAudio && AudioManager.I != null)
+        {
+            AudioManager.I.PlaySanityWarning();
+            hasPlayedLowSanityAudio = true;
+        }
     }
 
     private void ClearDebuff()
     {
         if (playerController != null)
-            playerController.SetSanitySpeedFactor(1f); // Recover movement speed
+            playerController.SetSanitySpeedFactor(1f);
 
-        if (lowSanityAudio != null && lowSanityAudio.isPlaying)
-            lowSanityAudio.Stop();
+        if (AudioManager.I != null)
+            AudioManager.I.StopSanityWarning();
+
+        hasPlayedLowSanityAudio = false;
     }
 
     private void TriggerCritical()
     {
         if (playerController != null)
-            playerController.SetSanitySpeedFactor(0.6f); // Further reduce movement speed
+            playerController.SetSanitySpeedFactor(0.6f);
     }
 
     private void ClearCritical()
     {
         if (playerController != null)
-            playerController.SetSanitySpeedFactor(isDebuffed ? 0.8f : 1f); // Restore based on debuff state
+            playerController.SetSanitySpeedFactor(isDebuffed ? 0.8f : 1f);
     }
 }
