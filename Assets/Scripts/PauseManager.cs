@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PauseManager : MonoBehaviour
 {
@@ -6,6 +7,26 @@ public class PauseManager : MonoBehaviour
     [Header("UI Panels")]
     [SerializeField] private GameObject pausePanel;
     [SerializeField] private GameObject settingsMenu;
+
+     void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // Try to re-bind UI references in the new scene
+        if (pausePanel == null)
+            pausePanel = GameObject.FindWithTag("PausePanel");
+
+        if (settingsMenu == null)
+            settingsMenu = GameObject.FindWithTag("SettingsMenu");
+    }
 
     public static bool isPaused = false;
 
@@ -50,7 +71,8 @@ public class PauseManager : MonoBehaviour
     private void PauseGame()
     {
         Time.timeScale = 0;
-        pausePanel.SetActive(true);
+        if (pausePanel != null)
+            pausePanel.SetActive(true);
         
         // Unlock and show the cursor to interact with the menu
         Cursor.lockState = CursorLockMode.None;
@@ -60,9 +82,10 @@ public class PauseManager : MonoBehaviour
     public void ResumeGame()
     {
         Time.timeScale = 1;
-        pausePanel.SetActive(false);
-        isPaused = false;
+        if (pausePanel != null)
+            pausePanel.SetActive(false);
 
+        isPaused = false;
         // Lock and hide the cursor for gameplay
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;

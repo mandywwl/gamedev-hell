@@ -18,6 +18,20 @@ public class AudioManager : MonoBehaviour
     [Header("Audio Mixer")]
     [SerializeField] private AudioMixer mainMixer;
 
+    [SerializeField] private AudioMixerGroup musicGroup;
+    [SerializeField] private AudioMixerGroup ambienceGroup;
+    [SerializeField] private AudioMixerGroup sfxGroup;
+    [SerializeField] private AudioMixerGroup uiGroup;
+
+    void OnValidate()
+    {
+        if (musicSource && musicGroup)     musicSource.outputAudioMixerGroup = musicGroup;
+        if (ambienceSource && ambienceGroup) ambienceSource.outputAudioMixerGroup = ambienceGroup;
+        if (uiSource && uiGroup)           uiSource.outputAudioMixerGroup = uiGroup;
+        if (sfxSources != null && sfxGroup)
+            foreach (var s in sfxSources) if (s) s.outputAudioMixerGroup = sfxGroup;
+    }
+
     void Awake()
     {
         if (I != null && I != this)

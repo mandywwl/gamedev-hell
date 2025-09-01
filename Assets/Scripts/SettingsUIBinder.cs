@@ -88,6 +88,9 @@ public class SettingsUIBinder : MonoBehaviour
         //if (quality) quality.onValueChanged.AddListener(sm.ChangeQuality);
         if (resolution) resolution.onValueChanged.AddListener(sm.ChangeResolution);
         if (fullscreen) fullscreen.onValueChanged.AddListener((bool isOn) => sm.ChangeFullScreen(isOn));
+
+        Debug.Log($"[Binder] Binding to settingsManager id={settingsManager.Instance.GetInstanceID()} mixer={(settingsManager.Instance ? settingsManager.Instance.name : "NULL")}");
+
     }
 
     private void UnbindListeners()
