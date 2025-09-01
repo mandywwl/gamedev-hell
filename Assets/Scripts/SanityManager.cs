@@ -17,6 +17,8 @@ public class SanityManager : MonoBehaviour
     private bool isCritical = false;
     private bool hasPlayedLowSanityAudio = false;
 
+    private HallucinationController hallucinationController;
+
     private PlayerController playerController;
 
     public Action<float, float> OnSanityChanged; 
@@ -26,7 +28,7 @@ public class SanityManager : MonoBehaviour
     void Start()
     {
         playerController = FindObjectOfType<PlayerController>();
-
+        hallucinationController = FindObjectOfType<HallucinationController>();
         currentSanity = maxSanity;
 
         if (AudioManager.I != null)
@@ -113,11 +115,18 @@ public class SanityManager : MonoBehaviour
     {
         if (playerController != null)
             playerController.SetSanitySpeedFactor(0.6f);
+
+        if (hallucinationController != null)
+            hallucinationController.enabled = true;
     }
 
     private void ClearCritical()
     {
         if (playerController != null)
             playerController.SetSanitySpeedFactor(isDebuffed ? 0.8f : 1f);
+
+
+        if (hallucinationController != null)
+            hallucinationController.enabled = false;
     }
 }
