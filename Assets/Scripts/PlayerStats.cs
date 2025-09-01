@@ -29,6 +29,12 @@ public class PlayerStats : MonoBehaviour
     public System.Action<float> OnAttackPowerChanged;
     public System.Action<float> OnDefensePowerChanged;
 
+    // Sanity Damage Debuff 
+    [Header("Sanity Damage Debuff")]
+    [SerializeField] private float lowSanityThreshold = 50f; // sanity value at which debuff kicks in
+    [SerializeField] private float lowSanityDamageMultiplier = 0.75f; // 25% less damage
+    private SanityManager sanityManager; 
+
     void Awake()
     {
         if (Instance == null)
@@ -53,6 +59,9 @@ public class PlayerStats : MonoBehaviour
 
         // Calculate initial equipment bonuses
         UpdateEquipmentBonuses();
+
+        // Get reference to sanity manager
+        sanityManager = FindObjectOfType<SanityManager>();
     }
 
     void OnDestroy()
@@ -165,7 +174,15 @@ public class PlayerStats : MonoBehaviour
     /// Get total attack power (base + equipment bonuses)    
     public float GetTotalAttackPower()
     {
-        return baseAttackPower + equipmentAttackBonus;
+        float total = baseAttackPower + equipmentAttackBonus;
+
+        // Apply sanity debuff if sanity is low
+        if (sanityManager != null && sanityManager.CurrentSanity <= lowSanityThreshold)
+        {
+            total *= lowSanityDamageMultiplier;
+        }
+
+        return total;
     }
 
     /// Get total defense power (base + equipment bonuses
@@ -177,15 +194,24 @@ public class PlayerStats : MonoBehaviour
     /// Get attack power for a specific equipped 
     public float GetWeaponAttackPower(ItemType weaponType)
     {
+        float total = baseAttackPower;
+
         if (InventorySystem.Instance != null)
         {
             ItemStack weaponStack = InventorySystem.Instance.GetEquippedItem(weaponType);
             if (weaponStack != null && weaponStack.item.category == ItemCategory.Weapons && !weaponStack.item.IsBroken())
             {
-                return baseAttackPower + weaponStack.item.attackPower;
+                total = baseAttackPower + weaponStack.item.attackPower;
             }
         }
-        return baseAttackPower; // Return base attack if no weapon equipped
+
+        // Apply sanity debuff if sanity is low
+        if (sanityManager != null && sanityManager.CurrentSanity <= lowSanityThreshold)
+        {
+            total *= lowSanityDamageMultiplier;
+        }
+
+        return total;
     }
 
     #endregion
