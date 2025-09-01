@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using System;
 
 public class InventorySystem : MonoBehaviour
 {
@@ -25,6 +26,8 @@ public class InventorySystem : MonoBehaviour
     public System.Action<int, ItemStack> OnSlotChanged;
     public System.Action<ItemCategory> OnCategoryChanged;
     public System.Action<ItemType, ItemStack> OnEquipmentChanged;
+
+    public event Action<Item,int> OnItemAdded;
 
     void Awake()
     {
@@ -67,6 +70,7 @@ public class InventorySystem : MonoBehaviour
 
     public bool AddItem(Item item, int quantity = 1)
     {
+        OnItemAdded?.Invoke(item, quantity);
         // For weapons with durability, each one is unique - don't stack
         if (item.hasDurability)
         {

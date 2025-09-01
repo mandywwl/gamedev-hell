@@ -3101,7 +3101,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: -2651660242569509640, guid: 6faacf6327271344a9983cee0d923fbe, type: 2}
-  m_audioClip: {fileID: 8300000, guid: bc27c374cc434644f8a02c104000e75c, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: bc27c374cc434644f8a02c104000e75c, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -6659,7 +6659,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: [{targetCorrespondingSourceObject: {fileID: 2617035882113498853, guid: 528497c0f3771964b82271de151aa9ed, type: 3}, insertIndex: -1, addedObject: {fileID: 1863568480}}]
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 2617035882113498853, guid: 528497c0f3771964b82271de151aa9ed, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1863568480}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 528497c0f3771964b82271de151aa9ed, type: 3}
 --- !u!224 &631896493 stripped
@@ -10352,7 +10355,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: [{targetCorrespondingSourceObject: {fileID: 2617035882113498853, guid: 528497c0f3771964b82271de151aa9ed, type: 3}, insertIndex: -1, addedObject: {fileID: 475758636}}]
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 2617035882113498853, guid: 528497c0f3771964b82271de151aa9ed, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 475758636}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 528497c0f3771964b82271de151aa9ed, type: 3}
 --- !u!224 &874255037 stripped
@@ -14769,6 +14775,7 @@ GameObject:
   - component: {fileID: 1035695460}
   - component: {fileID: 1035695462}
   - component: {fileID: 1035695461}
+  - component: {fileID: 1035695463}
   m_Layer: 5
   m_Name: Counter
   m_TagString: Untagged
@@ -14894,6 +14901,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1035695459}
   m_CullTransparentMesh: 1
+--- !u!114 &1035695463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1035695459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84bb90798932646f49c976509b2e7f62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  counterText: {fileID: 1035695461}
 --- !u!1 &1057288526
 GameObject:
   m_ObjectHideFlags: 0
@@ -16325,7 +16345,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 9209783714517830, guid: 76742665179c0284897e879efe00b839, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1633459162}
-    m_AddedComponents: [{targetCorrespondingSourceObject: {fileID: 4222948243182966296, guid: 76742665179c0284897e879efe00b839, type: 3}, insertIndex: -1, addedObject: {fileID: 2033278847}}]
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4222948243182966296, guid: 76742665179c0284897e879efe00b839, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2033278847}
   m_SourcePrefab: {fileID: 100100000, guid: 76742665179c0284897e879efe00b839, type: 3}
 --- !u!4 &1183098491 stripped
 Transform:
@@ -17293,6 +17316,8 @@ MonoBehaviour:
   maxSanity: 100
   currentSanity: 100
   sanityDecayRate: 0.1667
+  lowSanityAudio: {fileID: 0}
+  sanityLossSFX: {fileID: 0}
   debuffThreshold: 50
   criticalThreshold: 20
 --- !u!1 &1433474915 stripped
@@ -23926,16 +23951,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67863d8cb8bdf304382a170eae185a33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lootTables: []
-  itemDatabase: []
-  lootDropPrefab: {fileID: 0}
-  lootPickupRange: 2
-  playerLayer:
-    serializedVersion: 2
-    m_Bits: 1
-  runSeed: 0
-  rarityModifier: 1
-  enableProceduralModification: 1
+  medkit: {fileID: 0}
 --- !u!1 &2089042166
 GameObject:
   m_ObjectHideFlags: 0

@@ -641,6 +641,6 @@ public class ItemStack
     {
         return item.weight * quantity;
 
-        // Example: 10x Bandages = 0.2f × 10 = 2.0f total weight
+        // Example: 10x Bandages = 0.2f ï¿½ 10 = 2.0f total weight
     }
 }
