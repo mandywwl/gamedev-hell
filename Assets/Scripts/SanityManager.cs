@@ -1,17 +1,11 @@
 using UnityEngine;
-using UnityEngine.UI;
-using System;
 
 public class SanityManager : MonoBehaviour
 {
     [Header("Sanity Settings")]
     public float maxSanity = 100f;
-    public float currentSanity;
-    public float sanityDecayRate = 1f;
-
-    [Header("UI Elements")]
-    public Slider sanitySlider;
-    public Image sanityOverlay;
+    public float currentSanity = 100f;
+    public float sanityDecayRate = 0.1667f; // Decays to 0 in 10 minutes
 
     [Header("Audio")]
     public AudioSource lowSanityAudio;
@@ -25,14 +19,18 @@ public class SanityManager : MonoBehaviour
     private bool isCritical = false;
 
     private PlayerController playerController;
-    private Camera mainCam;
+    private CombatSystem combatSystem;
 
     void Start()
     {
         playerController = FindObjectOfType<PlayerController>();
-        mainCam = Camera.main;
+        combatSystem = FindObjectOfType<CombatSystem>();
         currentSanity = maxSanity;
-        UpdateUI();
+    }
+
+    void Update()
+    {
+        DecaySanityOverTime(Time.deltaTime);
     }
 
     public void ModifySanity(float amount)
@@ -42,27 +40,12 @@ public class SanityManager : MonoBehaviour
         if (amount < 0 && sanityLossSFX != null && Mathf.Abs(amount) >= 5f)
             sanityLossSFX.Play();
 
-        UpdateUI();
         CheckDebuffStates();
     }
 
     public void DecaySanityOverTime(float deltaTime)
     {
         ModifySanity(-sanityDecayRate * deltaTime);
-    }
-    
-    private void UpdateUI()
-    {
-        if (sanitySlider != null)
-            sanitySlider.value = currentSanity / maxSanity;
-
-        if (sanityOverlay != null)
-        {
-            float alpha = Mathf.InverseLerp(maxSanity, 0, currentSanity);
-            Color c = sanityOverlay.color;
-            c.a = Mathf.Lerp(0f, 0.6f, alpha);
-            sanityOverlay.color = c;
-        }
     }
 
     private void CheckDebuffStates()
@@ -77,7 +60,8 @@ public class SanityManager : MonoBehaviour
             ClearDebuff();
             isDebuffed = false;
         }
-        if (currentSanity < criticalThreshold && isCritical)
+
+        if (currentSanity < criticalThreshold && !isCritical)
         {
             TriggerCritical();
             isCritical = true;
@@ -91,22 +75,34 @@ public class SanityManager : MonoBehaviour
 
     private void TriggerDebuff()
     {
-        
+        if (playerController != null)
+            playerController.SetSanitySpeedFactor(0.8f); // Reduce movement speed
+
+        if (lowSanityAudio != null && !lowSanityAudio.isPlaying)
+            lowSanityAudio.Play();
     }
 
     private void ClearDebuff()
     {
+        if (playerController != null)
+            playerController.SetSanitySpeedFactor(1f); // Recover movement speed
 
+        if (lowSanityAudio != null && lowSanityAudio.isPlaying)
+            lowSanityAudio.Stop();
     }
 
     private void TriggerCritical()
     {
-        
-    }
+        if (playerController != null)
+            playerController.SetSanitySpeedFactor(0.6f); // Further reduce movement speed
+
+      
 
     private void ClearCritical()
     {
-        
+        if (playerController != null)
+            playerController.SetSanitySpeedFactor(isDebuffed ? 0.8f : 1f); // Restore based on debuff state
+
+        e
     }
 }
-
