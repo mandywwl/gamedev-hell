@@ -20,27 +20,15 @@ public class PauseManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // Always rebind on scene load (inactive-safe)
-        pausePanel = FindTaggedInScene(scene, "PausePanel");
+        pausePanel   = FindTaggedInScene(scene, "PausePanel");
         settingsMenu = FindTaggedInScene(scene, "SettingsMenu");
 
-        // Safety: ensure menus start hidden and timescale normal
-        if (pausePanel) pausePanel.SetActive(false);
-        if (settingsMenu) settingsMenu.SetActive(false);
+        // reset state each time
         isPaused = false;
         Time.timeScale = 1f;
 
-        // Optional: cursor default per mode
-        if (GameState.I != null && GameState.I.CurrentMode == GameState.PlayMode.Exploration)
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-        else
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
+        if (pausePanel)   pausePanel.SetActive(false);
+        if (settingsMenu) settingsMenu.SetActive(false);
     }
 
     public static bool isPaused = false;
@@ -155,23 +143,27 @@ public class PauseManager : MonoBehaviour
         Debug.Log("Quitting Game..."); // Good for testing in the editor
         Application.Quit();
     }
-    
+
     // Helper that can find inactive tagged objects inside scene
     private GameObject FindTaggedInScene(Scene scene, string tag)
     {
-        var roots = scene.GetRootGameObjects();
-        for (int i = 0; i < roots.Length; i++)
+        foreach (var root in scene.GetRootGameObjects())
         {
-            // true => include inactive children
-            var trs = roots[i].GetComponentsInChildren<Transform>(true);
-            for (int j = 0; j < trs.Length; j++)
-            {
-                var t = trs[j];
-                if (t.CompareTag(tag))
-                    return t.gameObject;
-            }
+            var trs = root.GetComponentsInChildren<Transform>(true);
+            foreach (var t in trs)
+                if (t.CompareTag(tag)) return t.gameObject;
         }
         return null;
+    }
+    
+    public void BindUIPanels(GameObject pause, GameObject settings)
+    {
+        pausePanel = pause;
+        settingsMenu = settings;
+
+        if (pausePanel)   pausePanel.SetActive(false);
+        if (settingsMenu) settingsMenu.SetActive(false);
+        isPaused = false;
     }
 
 

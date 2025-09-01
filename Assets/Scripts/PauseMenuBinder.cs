@@ -10,25 +10,12 @@ public class PauseMenuBinder : MonoBehaviour
 
     void Awake()
     {
-        var pm = FindFirstObjectByType<PauseManager>();
-        if (pm == null) return;
+        var pm = FindFirstObjectByType<PauseManager>(); // Unity 6 API
+        if (!pm) return;
 
-        // Clear old listeners to avoid duplicates
-        if (resumeButton) {
-            resumeButton.onClick.RemoveAllListeners();
-            resumeButton.onClick.AddListener(pm.ResumeGame);
-        }
-        if (settingsButton) {
-            settingsButton.onClick.RemoveAllListeners();
-            settingsButton.onClick.AddListener(pm.OpenSettings);
-        }
-        if (quitButton) {
-            quitButton.onClick.RemoveAllListeners();
-            quitButton.onClick.AddListener(pm.QuitGame);
-        }
-        if (backButton) {
-            backButton.onClick.RemoveAllListeners();
-            backButton.onClick.AddListener(pm.CloseSettings);
-        }
+        if (resumeButton)  { resumeButton.onClick.RemoveAllListeners();  resumeButton.onClick.AddListener(pm.ResumeGame); }
+        if (settingsButton){ settingsButton.onClick.RemoveAllListeners(); settingsButton.onClick.AddListener(pm.OpenSettings); }
+        if (quitButton)    { quitButton.onClick.RemoveAllListeners();     quitButton.onClick.AddListener(pm.QuitGame); }
+        if (backButton)    { backButton.onClick.RemoveAllListeners();     backButton.onClick.AddListener(pm.CloseSettings); }
     }
 }
