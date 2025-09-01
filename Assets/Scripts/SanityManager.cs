@@ -6,7 +6,7 @@ public class SanityManager : MonoBehaviour
     [Header("Sanity Settings")]
     public float maxSanity = 100f;
     [SerializeField] private float currentSanity = 100f;
-    public float sanityDecayRate = 0.1667f; // Decays to 0 in 10 minutes
+    public float sanityDecayRate = 1f; 
 
     [Header("Thresholds")]
     public float debuffThreshold = 50f;
