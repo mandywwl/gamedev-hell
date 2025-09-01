@@ -69,7 +69,7 @@ public class ChestInteraction : MonoBehaviour
 
         // Play chest opening sound via AudioManager
         if (openChest != null)
-            // AudioManager.I.PlaySFX(openChest, transform.position);
+            AudioManager.I.PlaySFX(openChest);
 
         // Play opening animation
         if (animator != null)
