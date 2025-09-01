@@ -274,7 +274,8 @@ public class BattleSystem : MonoBehaviour
             return;
         }
         //go to inventory UI here
-
+        playerUnit.currentHP += 20;
+        playerHUD.SetHP(playerUnit.currentHP);
     }
 
     public void OnRunButton()

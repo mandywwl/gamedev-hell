@@ -1601,22 +1601,7 @@ MonoBehaviour:
   inventoryPanel: {fileID: 0}
   slotsContainer: {fileID: 0}
   slotPrefab: {fileID: 0}
-  itemDetailsPanel: {fileID: 0}
-  itemNameText: {fileID: 0}
-  itemDescriptionText: {fileID: 0}
-  itemStatsText: {fileID: 0}
-  itemIcon: {fileID: 0}
-  useButton: {fileID: 0}
-  equipButton: {fileID: 0}
-  dropButton: {fileID: 0}
-  playerHPText: {fileID: 0}
-  playerAttackText: {fileID: 0}
-  playerDefenseText: {fileID: 0}
-  allItemsButton: {fileID: 0}
-  weaponsButton: {fileID: 0}
-  armorButton: {fileID: 0}
-  consumablesButton: {fileID: 0}
-  keyItemsButton: {fileID: 0}
+  initialSlotCount: 8
 --- !u!1 &529005844
 GameObject:
   m_ObjectHideFlags: 0
@@ -3365,7 +3350,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Item
+  m_text: Heal
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b551b848d47d0d14a8f870b133f1ae93, type: 2}
   m_sharedMaterial: {fileID: -8006935241607347580, guid: b551b848d47d0d14a8f870b133f1ae93, type: 2}
