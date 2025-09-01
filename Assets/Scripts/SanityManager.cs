@@ -19,12 +19,10 @@ public class SanityManager : MonoBehaviour
     private bool isCritical = false;
 
     private PlayerController playerController;
-    private CombatSystem combatSystem;
 
     void Start()
     {
         playerController = FindObjectOfType<PlayerController>();
-        combatSystem = FindObjectOfType<CombatSystem>();
         currentSanity = maxSanity;
     }
 
@@ -95,14 +93,11 @@ public class SanityManager : MonoBehaviour
     {
         if (playerController != null)
             playerController.SetSanitySpeedFactor(0.6f); // Further reduce movement speed
-
-      
+    }
 
     private void ClearCritical()
     {
         if (playerController != null)
             playerController.SetSanitySpeedFactor(isDebuffed ? 0.8f : 1f); // Restore based on debuff state
-
-        e
     }
 }
