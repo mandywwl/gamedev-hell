@@ -45,10 +45,11 @@ public class SettingsUIBinder : MonoBehaviour
         }
         resolution.AddOptions(resolutionStringList);
 
-        // Give the populated list to the settingsManager so it knows what resolutions are available.
+        // Give the populated list to the settingsManager so it knows what resolutions are available
         if (settingsManager.Instance != null)
         {
             settingsManager.Instance.Resolutions = SelectedResolutionList;
+            settingsManager.Instance.InitializeScreenSettings();
         }
         
         if (resolution) resolution.SetValueWithoutNotify(PlayerPrefs.GetInt("resolution", resolution.value));

@@ -16,15 +16,22 @@ public class settingsManager : MonoBehaviour
 
     // public static settingsManager Instance { get; private set; }
     private static settingsManager _instance;
+    private static bool isShuttingDown = false;
 
     public static settingsManager Instance
     {
         get
         {
+            if (isShuttingDown)
+            {
+                Debug.LogWarning("[Singleton] Instance 'settingsManager' already destroyed on application quit. Won't create again - returning null.");
+                return null;
+            }
+
             if (_instance == null)
             {
-                // First, try to find an existing instance in the scene
-                _instance = FindObjectOfType<settingsManager>();
+                // Try to find an existing instance in the scene
+                _instance = UnityEngine.Object.FindAnyObjectByType<settingsManager>(); // future-proof using new API
             }
 
             if (_instance == null)
@@ -34,7 +41,7 @@ public class settingsManager : MonoBehaviour
                 _instance = singletonObject.AddComponent<settingsManager>();
                 Debug.Log("settingsManager instance created automatically.");
             }
-            
+
             return _instance;
         }
     }
@@ -55,6 +62,11 @@ public class settingsManager : MonoBehaviour
     // int SelectedQuality;
     // List<string> SelectedQualityList = new List<string>();
     // string[] AllQualitynames;
+
+    void OnApplicationQuit()
+    {
+        isShuttingDown = true;
+    }
 
     void Awake()
     {
@@ -88,32 +100,30 @@ public class settingsManager : MonoBehaviour
         }
     }
 
-    // void Start()
-    // {
-    //     IsFullScreen = true;
-    //     AllResolutions = Screen.resolutions;
+    void Start()
+    {
+        // Load saved settings or set defaults
+        float savedVolume = PlayerPrefs.GetFloat("sound", 1.0f);
+        ChangeSound(savedVolume);
 
-    //     List<string> resolutionStringList = new List<string>();
-    //     string newRes;
-    //     foreach (Resolution res in AllResolutions)
-    //     {
-    //         newRes = res.width.ToString() + " x " + res.height.ToString();
-    //         if (!resolutionStringList.Contains(newRes))
-    //         {
-    //             resolutionStringList.Add(newRes);
-    //             SelectedResolutionList.Add(res);
-    //         }
-    //     }
-    //     ResDropDown.AddOptions(resolutionStringList);
+        float savedBrightness = PlayerPrefs.GetFloat("brightness", 0.5f);
+        ChangeBrightness(savedBrightness);
 
-    //     AllQualitynames = QualitySettings.names;
-    //     foreach (string qual in AllQualitynames)
-    //     {
-    //         SelectedQualityList.Add(qual);
-    //     }
-    //     //QualityDropDown.AddOptions(SelectedQualityList);
+    }
 
-    // }
+    public void InitializeScreenSettings()
+    {
+        var rawFullscreen = PlayerPrefs.GetString("togglefullscreen", bool.TrueString);
+        IsFullScreen = bool.TryParse(rawFullscreen, out var val) ? val : true;
+
+        SelectedResolution = PlayerPrefs.GetInt("resolution", 0);
+
+        // Ensure saved resolution index is valid for the available resolutions
+        if (Resolutions != null && SelectedResolution < Resolutions.Count)
+        {
+            Screen.SetResolution(Resolutions[SelectedResolution].width, Resolutions[SelectedResolution].height, IsFullScreen);
+        }
+    }
 
     public void ChangeResolution(int index)
     {
