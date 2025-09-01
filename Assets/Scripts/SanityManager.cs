@@ -22,7 +22,7 @@ public class SanityManager : MonoBehaviour
 
     void Start()
     {
-        playerController = FindObjectOfType<PlayerController>();
+        playerController = FindAnyObjectByType<PlayerController>();
         currentSanity = maxSanity;
     }
 
