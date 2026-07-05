@@ -37,6 +37,7 @@ public class PlayerController : MonoBehaviour
     [Header("Inventory")]
     [Tooltip("Reference to the Inventory UI Manager (optional - will auto-find if not assigned)")]
     [SerializeField] private InventoryUIManager inventoryUIManager;
+    
 
     // cached
     private Rigidbody2D rb;
@@ -44,14 +45,14 @@ public class PlayerController : MonoBehaviour
     private SpriteRenderer sr;
 
     // state
-     private Vector2 rawInput;
+    private Vector2 rawInput;
     private Vector2 snappedInput;     // 8-dir snapped input
     private Vector2 desiredVelocity;  // moveSpeed * snappedInput
     private Vector2 smoothVelocity;   // used only if soften > 0
     private Vector2 lastLookDir = Vector2.down;
 
-    // Interactions
-    private ChestInteraction nearbyChest;
+    // sanity movement scaling (1 = normal speed)
+    [SerializeField, Range(0.25f, 1f)] private float sanitySpeedFactor = 1f;
 
     void Awake()
     {
@@ -63,6 +64,50 @@ public class PlayerController : MonoBehaviour
         rb.gravityScale   = 0f;
         rb.interpolation  = RigidbodyInterpolation2D.Interpolate;
         rb.freezeRotation = true; // avoid accidental torque/rotation
+    }
+
+    // Interactions
+    private ChestInteraction nearbyChest;
+
+    void HandleMovement()
+    {
+        // Read input (legacy Input Manager)
+        rawInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+
+        // Deadzone + normalize to avoid diagonal speed boost
+        if (rawInput.magnitude < inputDeadzone) rawInput = Vector2.zero;
+        else rawInput = rawInput.normalized;
+
+        // Snap to 8 directions
+        snappedInput = snapToEightDirections ? SnapTo8(rawInput) : rawInput;
+
+        // Compute desired velocity
+        desiredVelocity = snappedInput * moveSpeed * sanitySpeedFactor;
+
+        // Softness (optional); 0 = instant
+        if (soften > 0f)
+            smoothVelocity = Vector2.MoveTowards(smoothVelocity, desiredVelocity, soften * Time.deltaTime);
+        else
+            smoothVelocity = desiredVelocity;
+
+        // Drive Animator
+        Vector2 dirForAnim = snappedInput.sqrMagnitude > 0f ? snappedInput : lastLookDir;
+        if (dirForAnim.sqrMagnitude > 0.0001f) lastLookDir = dirForAnim;
+
+        if (rotateAnimatorInputBy45 && dirForAnim.sqrMagnitude > 0f)
+            dirForAnim = Rotate(dirForAnim, -45f * Mathf.Deg2Rad);
+
+        anim.SetFloat("MoveX", dirForAnim.x);
+        anim.SetFloat("MoveY", dirForAnim.y);
+        anim.SetFloat("Speed", snappedInput.sqrMagnitude > 0f ? 1f : 0f); 
+        
+    }
+    
+    void FixedUpdate()
+    {
+        // MovePosition = deterministic
+        Vector2 next = rb.position + smoothVelocity * Time.fixedDeltaTime;
+        rb.MovePosition(next);
     }
 
     void Start()
@@ -85,45 +130,16 @@ public class PlayerController : MonoBehaviour
         HandleInventoryInput();
     }
 
-    void HandleMovement()
+    // --- Helpers ---
+    private static Vector2 SnapTo8(Vector2 v)
     {
-        // Read input (legacy Input Manager)
-        rawInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        if (v.sqrMagnitude == 0f) return Vector2.zero;
 
-        // Deadzone + normalize to avoid diagonal speed boost
-        if (rawInput.magnitude < inputDeadzone) rawInput = Vector2.zero;
-        else rawInput = rawInput.normalized;
-
-        // Snap to 8 directions
-        snappedInput = snapToEightDirections ? SnapTo8(rawInput) : rawInput;
-
-        // Compute desired velocity
-        desiredVelocity = snappedInput * moveSpeed;
-
-        // Softness (optional); 0 = instant
-        if (soften > 0f)
-            smoothVelocity = Vector2.MoveTowards(smoothVelocity, desiredVelocity, soften * Time.deltaTime);
-        else
-            smoothVelocity = desiredVelocity;
-
-        // Drive Animator
-        Vector2 dirForAnim = snappedInput.sqrMagnitude > 0f ? snappedInput : lastLookDir;
-        if (dirForAnim.sqrMagnitude > 0.0001f) lastLookDir = dirForAnim;
-
-        if (rotateAnimatorInputBy45 && dirForAnim.sqrMagnitude > 0f)
-            dirForAnim = Rotate(dirForAnim, -45f * Mathf.Deg2Rad);
-
-        anim.SetFloat("MoveX", dirForAnim.x);
-        anim.SetFloat("MoveY", dirForAnim.y);
-        anim.SetFloat("Speed", snappedInput.sqrMagnitude > 0f ? 1f : 0f);
-
-    }
-
-    void FixedUpdate()
-    {
-        // MovePosition = deterministic
-        Vector2 next = rb.position + smoothVelocity * Time.fixedDeltaTime;
-        rb.MovePosition(next);
+        // angle in radians and snap to 45° steps
+        float a = Mathf.Atan2(v.y, v.x);
+        float step = Mathf.PI / 4f;                    // 45°
+        float snapped = Mathf.Round(a / step) * step;  // nearest 45°
+        return new Vector2(Mathf.Cos(snapped), Mathf.Sin(snapped));
     }
 
     private void HandleInteraction()
@@ -214,18 +230,6 @@ public class PlayerController : MonoBehaviour
         nearbyChest = closestChest;
     }
 
-    // --- Helpers ---
-    private static Vector2 SnapTo8(Vector2 v)
-    {
-        if (v.sqrMagnitude == 0f) return Vector2.zero;
-
-        // angle in radians and snap to 45° steps
-        float a = Mathf.Atan2(v.y, v.x);
-        float step = Mathf.PI / 4f;                    // 45°
-        float snapped = Mathf.Round(a / step) * step;  // nearest 45°
-        return new Vector2(Mathf.Cos(snapped), Mathf.Sin(snapped));
-    }
-
     private static Vector2 Rotate(Vector2 v, float radians)
     {
         float c = Mathf.Cos(radians);
@@ -233,5 +237,8 @@ public class PlayerController : MonoBehaviour
         return new Vector2(v.x * c - v.y * s, v.x * s + v.y * c);
     }
 
-
+    public void SetSanitySpeedFactor(float factor)
+    {
+        sanitySpeedFactor = Mathf.Clamp(factor, 0.25f, 1f);
+    }
 }

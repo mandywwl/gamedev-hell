@@ -12,23 +12,29 @@ public class PlayerStats : MonoBehaviour
     public float maxHP = 100f;
     public float baseAttackPower = 10f;
     public float baseDefensePower = 5f;
-    
+
     [Header("Current Stats")]
     public float currentHP = 100f;
-    
+
     [Header("Combat Modifiers")]
     [SerializeField] private float equipmentAttackBonus = 0f;
     [SerializeField] private float equipmentDefenseBonus = 0f;
-    
+
     // Combat-specific temporary stats
     [System.NonSerialized] public float combatHP;
     [System.NonSerialized] public bool isInCombat = false;
-    
+
     // Events for UI updates
     public System.Action<float, float> OnHPChanged; // current, max
     public System.Action<float> OnAttackPowerChanged;
     public System.Action<float> OnDefensePowerChanged;
-    
+
+    // Sanity Damage Debuff 
+    [Header("Sanity Damage Debuff")]
+    [SerializeField] private float lowSanityThreshold = 50f; // sanity value at which debuff kicks in
+    [SerializeField] private float lowSanityDamageMultiplier = 0.75f; // 25% less damage
+    private SanityManager sanityManager; 
+
     void Awake()
     {
         if (Instance == null)
@@ -42,7 +48,7 @@ public class PlayerStats : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    
+
     void Start()
     {
         // Listen to equipment changes to update combat stats
@@ -50,11 +56,14 @@ public class PlayerStats : MonoBehaviour
         {
             InventorySystem.Instance.OnEquipmentChanged += OnEquipmentChanged;
         }
-        
+
         // Calculate initial equipment bonuses
         UpdateEquipmentBonuses();
+
+        // Get reference to sanity manager
+        sanityManager = FindObjectOfType<SanityManager>();
     }
-    
+
     void OnDestroy()
     {
         if (InventorySystem.Instance != null)
@@ -62,18 +71,18 @@ public class PlayerStats : MonoBehaviour
             InventorySystem.Instance.OnEquipmentChanged -= OnEquipmentChanged;
         }
     }
-    
+
     private void InitializeStats()
     {
         currentHP = maxHP;
         combatHP = currentHP;
-        
+
         // Trigger initial UI updates
         OnHPChanged?.Invoke(currentHP, maxHP);
         OnAttackPowerChanged?.Invoke(GetTotalAttackPower());
         OnDefensePowerChanged?.Invoke(GetTotalDefensePower());
     }
-    
+
     #region Combat State Management
 
     /// Call this when combat starts - saves current stats as combat 
@@ -81,7 +90,7 @@ public class PlayerStats : MonoBehaviour
     {
         isInCombat = true;
         combatHP = currentHP;
-        
+
         Debug.Log($"Combat started! Player HP: {combatHP:F1}, Attack: {GetTotalAttackPower():F1}, Defense: {GetTotalDefensePower():F1}");
     }
 
@@ -92,10 +101,10 @@ public class PlayerStats : MonoBehaviour
         {
             currentHP = combatHP;
             isInCombat = false;
-            
+
             // Trigger UI updates with final values
             OnHPChanged?.Invoke(currentHP, maxHP);
-            
+
             Debug.Log($"Combat ended! Final HP: {currentHP:F1}");
         }
     }
@@ -105,24 +114,24 @@ public class PlayerStats : MonoBehaviour
     {
         return isInCombat ? combatHP : currentHP;
     }
-    
+
     #endregion
-    
+
 
     #region Equipment Integration
-    
+
     private void OnEquipmentChanged(ItemType equipmentType, ItemStack itemStack)
     {
         UpdateEquipmentBonuses();
     }
-    
+
     private void UpdateEquipmentBonuses()
     {
         equipmentAttackBonus = 0f;
         equipmentDefenseBonus = 0f;
-        
+
         if (InventorySystem.Instance == null) return;
-        
+
         // Calculate attack bonus from equipped weapons
         foreach (ItemType weaponType in System.Enum.GetValues(typeof(ItemType)))
         {
@@ -136,7 +145,7 @@ public class PlayerStats : MonoBehaviour
                 }
             }
         }
-        
+
         // Calculate defense bonus from equipped armor
         foreach (ItemType armorType in System.Enum.GetValues(typeof(ItemType)))
         {
@@ -150,22 +159,30 @@ public class PlayerStats : MonoBehaviour
                 }
             }
         }
-        
+
         // Trigger UI updates
         OnAttackPowerChanged?.Invoke(GetTotalAttackPower());
         OnDefensePowerChanged?.Invoke(GetTotalDefensePower());
-        
+
         Debug.Log($"Equipment bonuses updated - Attack: +{equipmentAttackBonus:F1}, Defense: +{equipmentDefenseBonus:F1}");
     }
-    
+
     #endregion
-    
+
     #region Combat Stats Calculation
 
     /// Get total attack power (base + equipment bonuses)    
     public float GetTotalAttackPower()
     {
-        return baseAttackPower + equipmentAttackBonus;
+        float total = baseAttackPower + equipmentAttackBonus;
+
+        // Apply sanity debuff if sanity is low
+        if (sanityManager != null && sanityManager.CurrentSanity <= lowSanityThreshold)
+        {
+            total *= lowSanityDamageMultiplier;
+        }
+
+        return total;
     }
 
     /// Get total defense power (base + equipment bonuses
@@ -173,31 +190,40 @@ public class PlayerStats : MonoBehaviour
     {
         return baseDefensePower + equipmentDefenseBonus;
     }
-    
+
     /// Get attack power for a specific equipped 
     public float GetWeaponAttackPower(ItemType weaponType)
     {
+        float total = baseAttackPower;
+
         if (InventorySystem.Instance != null)
         {
             ItemStack weaponStack = InventorySystem.Instance.GetEquippedItem(weaponType);
             if (weaponStack != null && weaponStack.item.category == ItemCategory.Weapons && !weaponStack.item.IsBroken())
             {
-                return baseAttackPower + weaponStack.item.attackPower;
+                total = baseAttackPower + weaponStack.item.attackPower;
             }
         }
-        return baseAttackPower; // Return base attack if no weapon equipped
+
+        // Apply sanity debuff if sanity is low
+        if (sanityManager != null && sanityManager.CurrentSanity <= lowSanityThreshold)
+        {
+            total *= lowSanityDamageMultiplier;
+        }
+
+        return total;
     }
-    
+
     #endregion
-    
+
     #region Combat Actions
-    
-    
+
+
     /// Take damage during combat - applies defense reduction
     public bool TakeDamage(float damage, bool isInCombat)
     {
         float actualDamage = Mathf.Max(1f, damage - GetTotalDefensePower()); // Minimum 1 damage
-        
+
         if (isInCombat)
         {
             combatHP = Mathf.Max(0f, combatHP - actualDamage);
@@ -210,11 +236,11 @@ public class PlayerStats : MonoBehaviour
             OnHPChanged?.Invoke(currentHP, maxHP);
             Debug.Log($"Player took {actualDamage:F1} damage. HP: {currentHP:F1}/{maxHP:F1}");
         }
-        
+
         return GetCurrentHP() <= 0f; // Return true if player is dead
     }
-    
-    
+
+
     /// Heal HP during combat or outside
     public void Heal(float amount)
     {
@@ -230,26 +256,24 @@ public class PlayerStats : MonoBehaviour
             Debug.Log($"Player healed {amount:F1} HP. HP: {currentHP:F1}/{maxHP:F1}");
         }
     }
-    
-    
-    /// Use a consumable item and apply its effects
+
+
+    // Use a consumable item and apply its effects
     public bool UseConsumable(Item consumableItem)
     {
         if (!consumableItem.isConsumable) return false;
-        
+
         if (InventorySystem.Instance != null && InventorySystem.Instance.HasItem(consumableItem, 1))
         {
-            // Remove item from inventory
-            InventorySystem.Instance.RemoveItem(consumableItem, 1);
-            
+
             // Apply effects using float values from Item
             if (consumableItem.healingAmount > 0f)
                 Heal(consumableItem.healingAmount);
-                
+
             Debug.Log($"Used {consumableItem.itemName}!");
             return true;
         }
-        
+
         return false;
     }
     
@@ -262,23 +286,23 @@ public class PlayerStats : MonoBehaviour
     {
         return GetCurrentHP() <= 0f;
     }
-    
+
     /// Check if player is at low health
     public bool IsLowHealth(float threshold = 0.25f)
     {
         return GetCurrentHP() / maxHP <= threshold;
     }
-    
+
     /// Get health percentage
     public float GetHealthPercentage()
     {
         return GetCurrentHP() / maxHP;
     }
-    
+
     #endregion
-    
+
     #region Save/Load Support
-    
+
     [System.Serializable]
     public class PlayerStatsData
     {
@@ -287,7 +311,7 @@ public class PlayerStats : MonoBehaviour
         public float baseAttackPower;
         public float baseDefensePower;
     }
-    
+
     public PlayerStatsData GetSaveData()
     {
         return new PlayerStatsData
@@ -298,23 +322,23 @@ public class PlayerStats : MonoBehaviour
             baseDefensePower = this.baseDefensePower
         };
     }
-    
+
     public void LoadSaveData(PlayerStatsData data)
     {
         currentHP = data.currentHP;
         maxHP = data.maxHP;
         baseAttackPower = data.baseAttackPower;
         baseDefensePower = data.baseDefensePower;
-        
+
         // Update combat stats if in combat
         if (isInCombat)
         {
             combatHP = currentHP;
         }
-        
+
         // Update equipment bonuses
         UpdateEquipmentBonuses();
-        
+
         // Trigger UI updates
         OnHPChanged?.Invoke(currentHP, maxHP);
         OnAttackPowerChanged?.Invoke(GetTotalAttackPower());

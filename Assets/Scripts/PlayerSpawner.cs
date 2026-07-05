@@ -36,7 +36,7 @@ public class PlayerSpawner : MonoBehaviour
         }
 
         // Else resume last position in this scene (if remembered)
-        if (GameState.I.SceneMem.TryGetValue(name, out var mem) && mem.hasLastPosition)
+        if (GameState.I.SceneMem.TryGetValue(scene.name, out var mem) && mem.hasLastPosition)
         {
             player.position = mem.lastPosition;
             return;
