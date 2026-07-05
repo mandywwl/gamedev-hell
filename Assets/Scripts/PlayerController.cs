@@ -25,8 +25,8 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Rotate Animator inputs by -45° if sprites are authored to iso tile axes.")]
     [SerializeField] private bool rotateAnimatorInputBy45 = false;
 
-    [Header("Rendering")]
-    [SerializeField] private int sortingMultiplier = 1; // TODO: tweak
+    // [Header("Rendering")]
+    // [SerializeField] private int sortingMultiplier = 1; // TODO: tweak
 
     [Header("Interaction")]
     [Tooltip("Range to detect interactable objects like chests")]
@@ -37,6 +37,7 @@ public class PlayerController : MonoBehaviour
     [Header("Inventory")]
     [Tooltip("Reference to the Inventory UI Manager (optional - will auto-find if not assigned)")]
     [SerializeField] private InventoryUIManager inventoryUIManager;
+    
 
     // cached
     private Rigidbody2D rb;
@@ -44,14 +45,14 @@ public class PlayerController : MonoBehaviour
     private SpriteRenderer sr;
 
     // state
-     private Vector2 rawInput;
+    private Vector2 rawInput;
     private Vector2 snappedInput;     // 8-dir snapped input
     private Vector2 desiredVelocity;  // moveSpeed * snappedInput
     private Vector2 smoothVelocity;   // used only if soften > 0
     private Vector2 lastLookDir = Vector2.down;
 
-    // Interactions
-    private ChestInteraction nearbyChest;
+    // sanity movement scaling (1 = normal speed)
+    [SerializeField, Range(0.25f, 1f)] private float sanitySpeedFactor = 1f;
 
     void Awake()
     {
@@ -65,25 +66,8 @@ public class PlayerController : MonoBehaviour
         rb.freezeRotation = true; // avoid accidental torque/rotation
     }
 
-    void Start()
-    {
-        // Auto-find inventory UI manager if not assigned
-        if (inventoryUIManager == null)
-        {
-            inventoryUIManager = FindObjectOfType<InventoryUIManager>();
-            if (inventoryUIManager == null)
-            {
-                Debug.LogWarning("InventoryUIManager not found in scene. Inventory functionality will not work.");
-            }
-        }
-    }
-    
-    void Update()
-    {
-        HandleMovement();
-        HandleInteraction();
-        HandleInventoryInput();
-    }
+    // Interactions
+    private ChestInteraction nearbyChest;
 
     void HandleMovement()
     {
@@ -98,7 +82,7 @@ public class PlayerController : MonoBehaviour
         snappedInput = snapToEightDirections ? SnapTo8(rawInput) : rawInput;
 
         // Compute desired velocity
-        desiredVelocity = snappedInput * moveSpeed;
+        desiredVelocity = snappedInput * moveSpeed * sanitySpeedFactor;
 
         // Softness (optional); 0 = instant
         if (soften > 0f)
@@ -115,15 +99,47 @@ public class PlayerController : MonoBehaviour
 
         anim.SetFloat("MoveX", dirForAnim.x);
         anim.SetFloat("MoveY", dirForAnim.y);
-        anim.SetFloat("Speed", snappedInput.sqrMagnitude > 0f ? 1f : 0f);
-
+        anim.SetFloat("Speed", snappedInput.sqrMagnitude > 0f ? 1f : 0f); 
+        
     }
-
+    
     void FixedUpdate()
     {
         // MovePosition = deterministic
         Vector2 next = rb.position + smoothVelocity * Time.fixedDeltaTime;
         rb.MovePosition(next);
+    }
+
+    void Start()
+    {
+        // Auto-find inventory UI manager if not assigned
+        if (inventoryUIManager == null)
+        {
+            inventoryUIManager = FindFirstObjectByType<InventoryUIManager>(); // unity 6 update
+            if (inventoryUIManager == null)
+            {
+                Debug.LogWarning("InventoryUIManager not found in scene. Inventory functionality will not work.");
+            }
+        }
+    }
+    
+    void Update()
+    {
+        HandleMovement();
+        HandleInteraction();
+        HandleInventoryInput();
+    }
+
+    // --- Helpers ---
+    private static Vector2 SnapTo8(Vector2 v)
+    {
+        if (v.sqrMagnitude == 0f) return Vector2.zero;
+
+        // angle in radians and snap to 45° steps
+        float a = Mathf.Atan2(v.y, v.x);
+        float step = Mathf.PI / 4f;                    // 45°
+        float snapped = Mathf.Round(a / step) * step;  // nearest 45°
+        return new Vector2(Mathf.Cos(snapped), Mathf.Sin(snapped));
     }
 
     private void HandleInteraction()
@@ -214,18 +230,6 @@ public class PlayerController : MonoBehaviour
         nearbyChest = closestChest;
     }
 
-    // --- Helpers ---
-    private static Vector2 SnapTo8(Vector2 v)
-    {
-        if (v.sqrMagnitude == 0f) return Vector2.zero;
-
-        // angle in radians and snap to 45° steps
-        float a = Mathf.Atan2(v.y, v.x);
-        float step = Mathf.PI / 4f;                    // 45°
-        float snapped = Mathf.Round(a / step) * step;  // nearest 45°
-        return new Vector2(Mathf.Cos(snapped), Mathf.Sin(snapped));
-    }
-
     private static Vector2 Rotate(Vector2 v, float radians)
     {
         float c = Mathf.Cos(radians);
@@ -233,5 +237,8 @@ public class PlayerController : MonoBehaviour
         return new Vector2(v.x * c - v.y * s, v.x * s + v.y * c);
     }
 
-
+    public void SetSanitySpeedFactor(float factor)
+    {
+        sanitySpeedFactor = Mathf.Clamp(factor, 0.25f, 1f);
+    }
 }

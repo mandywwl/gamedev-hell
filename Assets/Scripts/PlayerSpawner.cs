@@ -25,7 +25,7 @@ public class PlayerSpawner : MonoBehaviour
         // Use requested SpawnPoint
         if (!string.IsNullOrEmpty(GameState.I.NextSpawnId))
         {
-            var target = FindObjectsOfType<SpawnPoint>(true)
+            var target = FindObjectsByType<SpawnPoint>(FindObjectsSortMode.None)
                          .FirstOrDefault(s => s.Id == GameState.I.NextSpawnId);
             if (target != null)
             {
@@ -36,7 +36,7 @@ public class PlayerSpawner : MonoBehaviour
         }
 
         // Else resume last position in this scene (if remembered)
-        if (GameState.I.SceneMem.TryGetValue(name, out var mem) && mem.hasLastPosition)
+        if (GameState.I.SceneMem.TryGetValue(scene.name, out var mem) && mem.hasLastPosition)
         {
             player.position = mem.lastPosition;
             return;

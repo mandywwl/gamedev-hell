@@ -48,7 +48,7 @@ public class Item : ScriptableObject
     public float weight = 1f;
     public bool isUnique = false;
     public int maxPerRun = -1;
-    
+
     // Run variation properties
     [Header("Run Variation")]
     public bool canBeModified = true;
@@ -69,7 +69,7 @@ public class Item : ScriptableObject
     {
         // Set basic info based on type
         itemName = type.ToString().Replace("_", " ");
-        
+
         // Set durability for weapons and armor
         if (category == ItemCategory.Weapons || category == ItemCategory.Armor)
         {
@@ -385,7 +385,7 @@ public class Item : ScriptableObject
     public bool ValidateSetup()
     {
         // Check weapon ammo compatibility
-        if (category == ItemCategory.Weapons && requiredAmmoType == ItemType.Misc && 
+        if (category == ItemCategory.Weapons && requiredAmmoType == ItemType.Misc &&
             (type == ItemType.M4A1 || type == ItemType.FN_SCAR_MK17 || type == ItemType.CompoundBow))
         {
             Debug.LogWarning($"{itemName} is a ranged weapon but has no ammo type set!");
@@ -440,29 +440,6 @@ public class Item : ScriptableObject
         return isConsumable || (category == ItemCategory.Weapons && !IsBroken());
     }
 
-    public string GetCombatDescription()
-    {
-        if (isConsumable)
-        {
-            return $"Restores {hpRestore} HP, {sanityRestore} Sanity";
-        }
-        else if (category == ItemCategory.Weapons)
-        {
-            string ammoInfo = requiredAmmoType != ItemType.Misc ? $" (Uses {requiredAmmoType})" : "";
-            return $"Damage: {attackPower}{ammoInfo}, Durability: {GetDurabilityPercentage():F1}%";
-        }
-        return description;
-    }
-
-    public int GetActionCost()
-    {
-        if (category == ItemCategory.Weapons)
-            return 1; // Attacking costs 1 action
-        else if (isConsumable)
-            return 1; // Using items costs 1 action
-
-        return 0;
-    }
 
     public Item CreateModifiedCopy(float statModifier = 1f, string suffix = "")
     {
@@ -470,7 +447,7 @@ public class Item : ScriptableObject
 
         // Create a new instance (not asset) for runtime modifications
         Item modifiedItem = CreateInstance<Item>();
-        
+
         // Copy all base properties
         modifiedItem.id = id;
         modifiedItem.itemName = itemName + suffix;
@@ -486,26 +463,26 @@ public class Item : ScriptableObject
         modifiedItem.weight = weight;
         modifiedItem.isUnique = isUnique;
         modifiedItem.maxPerRun = maxPerRun;
-        
+
         // Apply stat modifications
         modifiedItem.attackPower = Mathf.RoundToInt(attackPower * statModifier);
         modifiedItem.defensePower = Mathf.RoundToInt(defensePower * statModifier);
         modifiedItem.hpRestore = Mathf.RoundToInt(hpRestore * statModifier);
         modifiedItem.sanityRestore = Mathf.RoundToInt(sanityRestore * statModifier);
-        
+
         modifiedItem.hasDurability = hasDurability;
         modifiedItem.maxDurability = maxDurability * statModifier;
         modifiedItem.currentDurability = modifiedItem.maxDurability;
-        
+
         modifiedItem.requiredAmmoType = requiredAmmoType;
         modifiedItem.magazineSize = Mathf.RoundToInt(magazineSize * statModifier);
         modifiedItem.fireRate = fireRate * statModifier;
         modifiedItem.range = range * statModifier;
-        
+
         modifiedItem.healingAmount = healingAmount * statModifier;
         modifiedItem.sanityAmount = sanityAmount * statModifier;
         modifiedItem.isInstantUse = isInstantUse;
-        
+
         return modifiedItem;
     }
 
@@ -552,7 +529,7 @@ public enum ItemType
     // Assault Rifles
     M4A1,
     M16,
-    FN_SCAR_MK17, 
+    FN_SCAR_MK17,
     G36_HK,
     F1_Famas,
 
@@ -641,6 +618,6 @@ public class ItemStack
     {
         return item.weight * quantity;
 
-        // Example: 10x Bandages = 0.2f × 10 = 2.0f total weight
+        // Example: 10x Bandages = 0.2f ï¿½ 10 = 2.0f total weight
     }
 }

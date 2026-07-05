@@ -2,25 +2,17 @@ using UnityEngine;
 
 public class playSounds : MonoBehaviour
 {
-    public AudioClip hoverSound;
-    public AudioClip selectSound;
-
-    AudioSource sound;
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        sound = GetComponent<AudioSource>();
-    }
+    public AudioClip uiHover;
+    public AudioClip uiClick;
 
     public void PlayHoverSound()
     {
-        sound.PlayOneShot(hoverSound);
+        if (uiHover) AudioManager.I.PlayUI(uiHover);
     }
 
     public void PlaySelectSound()
     {
-        sound.PlayOneShot(selectSound);
+        if (uiClick) AudioManager.I.PlayUI(uiClick);
     }
 
 }
