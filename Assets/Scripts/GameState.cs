@@ -23,7 +23,11 @@ public class GameState : MonoBehaviour
     // Track defeated enemies
     public HashSet<string> defeatedEnemies = new();
 
+    // Track current play mode
+    public enum PlayMode { Exploration, Combat }
+    public PlayMode CurrentMode = PlayMode.Exploration;
 
+    
     void Awake()
     {
         if (I != null && I != this) { Destroy(gameObject); return; }

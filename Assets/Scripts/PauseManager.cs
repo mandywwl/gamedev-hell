@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PauseManager : MonoBehaviour
 {
@@ -6,6 +7,29 @@ public class PauseManager : MonoBehaviour
     [Header("UI Panels")]
     [SerializeField] private GameObject pausePanel;
     [SerializeField] private GameObject settingsMenu;
+
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        pausePanel   = FindTaggedInScene(scene, "PausePanel");
+        settingsMenu = FindTaggedInScene(scene, "SettingsMenu");
+
+        // reset state each time
+        isPaused = false;
+        Time.timeScale = 1f;
+
+        if (pausePanel)   pausePanel.SetActive(false);
+        if (settingsMenu) settingsMenu.SetActive(false);
+    }
 
     public static bool isPaused = false;
 
@@ -22,18 +46,37 @@ public class PauseManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            // If the settings menu is open, Esc should close it. Otherwise, toggle the pause state.
-            if (settingsMenu != null && settingsMenu.activeSelf)
+            if (GameState.I != null)
             {
-                CloseSettings();
-            }
-            else
-            {
-                TogglePause();
+                if (GameState.I.CurrentMode == GameState.PlayMode.Exploration)
+                {
+                    if (settingsMenu != null && settingsMenu.activeSelf)
+                        CloseSettings();
+                    else
+                        TogglePause();
+                }
+                else if (GameState.I.CurrentMode == GameState.PlayMode.Combat)
+                {
+                    // In combat: don’t freeze Time.timeScale, just toggle UI
+                    if (settingsMenu != null && settingsMenu.activeSelf)
+                    {
+                        CloseSettings();
+                    }
+                    else if (pausePanel != null)
+                    {
+                        bool newState = !pausePanel.activeSelf;
+                        pausePanel.SetActive(newState);
+                        isPaused = newState;
+                    }
+
+                    // Keep cursor visible in combat
+                    Cursor.lockState = CursorLockMode.None;
+                    Cursor.visible = true;
+                }
             }
         }
     }
-    
+
     public void TogglePause()
     {
         isPaused = !isPaused;
@@ -50,8 +93,9 @@ public class PauseManager : MonoBehaviour
     private void PauseGame()
     {
         Time.timeScale = 0;
-        pausePanel.SetActive(true);
-        
+        if (pausePanel != null)
+            pausePanel.SetActive(true);
+
         // Unlock and show the cursor to interact with the menu
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
@@ -60,12 +104,24 @@ public class PauseManager : MonoBehaviour
     public void ResumeGame()
     {
         Time.timeScale = 1;
-        pausePanel.SetActive(false);
+        if (pausePanel != null)
+            pausePanel.SetActive(false);
+
+
         isPaused = false;
 
-        // Lock and hide the cursor for gameplay
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        if (GameState.I != null && GameState.I.CurrentMode == GameState.PlayMode.Exploration)
+        {
+            // Exploration: lock cursor
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        else
+        {
+            // Combat: keep cursor visible
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
     }
 
     // Called by the Pause menu “Settings” button
@@ -87,4 +143,29 @@ public class PauseManager : MonoBehaviour
         Debug.Log("Quitting Game..."); // Good for testing in the editor
         Application.Quit();
     }
+
+    // Helper that can find inactive tagged objects inside scene
+    private GameObject FindTaggedInScene(Scene scene, string tag)
+    {
+        foreach (var root in scene.GetRootGameObjects())
+        {
+            var trs = root.GetComponentsInChildren<Transform>(true);
+            foreach (var t in trs)
+                if (t.CompareTag(tag)) return t.gameObject;
+        }
+        return null;
+    }
+    
+    public void BindUIPanels(GameObject pause, GameObject settings)
+    {
+        pausePanel = pause;
+        settingsMenu = settings;
+
+        if (pausePanel)   pausePanel.SetActive(false);
+        if (settingsMenu) settingsMenu.SetActive(false);
+        isPaused = false;
+    }
+
+
+
 }

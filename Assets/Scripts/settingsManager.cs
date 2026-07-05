@@ -3,6 +3,8 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Audio;
+using UnityEngine.SceneManagement;  
+
 // using UnityEngine.UI;
 // using TMPro;
 
@@ -18,15 +20,14 @@ public class settingsManager : MonoBehaviour
     private static settingsManager _instance;
     private static bool isShuttingDown = false;
 
+    void OnEnable()  { SceneManager.sceneLoaded += HandleSceneLoaded; }
+    void OnDisable() { SceneManager.sceneLoaded -= HandleSceneLoaded; }
+
     public static settingsManager Instance
     {
         get
         {
-            if (isShuttingDown)
-            {
-                Debug.LogWarning("[Singleton] Instance 'settingsManager' already destroyed on application quit. Won't create again - returning null.");
-                return null;
-            }
+            if (isShuttingDown) return null;
 
             if (_instance == null)
             {
@@ -45,15 +46,18 @@ public class settingsManager : MonoBehaviour
             return _instance;
         }
     }
-    public AudioMixer mainMixer;
 
-    // Serialized Field for brightness profile
+    // Serialized Fields
     [SerializeField] private VolumeProfile brightnessProfile; // NOTE: Assign in Inspector
+    [SerializeField] private AudioMixer mainMixer;
+    [SerializeField] private string masterParam = "MasterVolume";
+
+
     private ColorAdjustments colourAdj;
 
     // List populated by SettingsUIBinder script
     public List<Resolution> Resolutions;
-    
+
     private bool IsFullScreen;
     private int SelectedResolution;
 
@@ -62,6 +66,36 @@ public class settingsManager : MonoBehaviour
     // int SelectedQuality;
     // List<string> SelectedQualityList = new List<string>();
     // string[] AllQualitynames;
+
+    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        ApplyAllFromPrefs();
+    }
+
+    public void ApplyAllFromPrefs()
+    {
+        // Volume
+        float savedVolume = PlayerPrefs.GetFloat("sound", 1.0f);
+        ChangeSound(savedVolume);
+
+        // Brightness
+        float savedBrightness = PlayerPrefs.GetFloat("brightness", 0.5f);
+        ChangeBrightness(savedBrightness);
+
+        // Fullscreen + Resolution
+        var rawFullscreen = PlayerPrefs.GetString("togglefullscreen", bool.TrueString);
+        IsFullScreen = bool.TryParse(rawFullscreen, out var val) ? val : true;
+
+        SelectedResolution = PlayerPrefs.GetInt("resolution", 0);
+        if (Resolutions != null && SelectedResolution >= 0 && SelectedResolution < Resolutions.Count)
+        {
+            Screen.SetResolution(
+                Resolutions[SelectedResolution].width,
+                Resolutions[SelectedResolution].height,
+                IsFullScreen
+            );
+        }
+    }
 
     void OnApplicationQuit()
     {
@@ -92,7 +126,7 @@ public class settingsManager : MonoBehaviour
 
         _instance = this;
         DontDestroyOnLoad(gameObject);
-        
+
         // Brightness setup
         if (brightnessProfile != null && brightnessProfile.TryGet(out colourAdj))
         {
@@ -103,11 +137,7 @@ public class settingsManager : MonoBehaviour
     void Start()
     {
         // Load saved settings or set defaults
-        float savedVolume = PlayerPrefs.GetFloat("sound", 1.0f);
-        ChangeSound(savedVolume);
-
-        float savedBrightness = PlayerPrefs.GetFloat("brightness", 0.5f);
-        ChangeBrightness(savedBrightness);
+        ApplyAllFromPrefs();
 
     }
 
@@ -169,15 +199,17 @@ public class settingsManager : MonoBehaviour
 
     public void ChangeSound(float value)
     {
-        // Save slider's raw value (0-1) so we can load it later
         PlayerPrefs.SetFloat("sound", value);
+        float db = Mathf.Log10(Mathf.Max(value, 0.0001f)) * 20f;
 
-        // Convert linear value to mixer log scale (dB) //...use small minimum value to prevent log10(0) error
-        float volumeInDb = Mathf.Log10(Mathf.Max(value, 0.0001f)) * 20f;
-        
-        // Set exposed param on AudioMixer
-        mainMixer.SetFloat("UIVolume", volumeInDb); // NOTE: Make sure name matches name created in the Audio Mixer window!
+        Debug.Log($"[Settings] slider={value:F3} -> {db:F1} dB | mixer={(mainMixer ? mainMixer.name : "NULL")} | param={masterParam}");
 
+        if (!mainMixer) return;
+
+        mainMixer.SetFloat(masterParam, db);
+        float readBack;
+        bool ok = mainMixer.GetFloat(masterParam, out readBack);
+        Debug.Log($"[Settings] SetFloat ok? {ok} | readBack={readBack:F1} dB");
         PlayerPrefs.Save();
     }
 
