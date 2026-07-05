@@ -1,0 +1,65 @@
+# ---- Unity generated / local cache (never share, always regenerated) ----
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]serSettings/
+[Mm]emoryCaptures/
+[Rr]ecordings/
+UIElementsSchema/
+
+# Asset meta file generated for the folder above (avoids stray asset warnings)
+/Assets/Recordings.meta
+
+# ---- Per-user IDE / editor state (differs per teammate, causes noisy diffs) ----
+.vs/
+.vscode/
+.idea/
+.gradle/
+ExportedObj/
+.consulo/
+
+# Auto-generated IDE project files (Unity regenerates these on open, per machine)
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+
+# ---- Crash/analytics/build noise ----
+sysinfo.txt
+crashlytics-build.properties
+
+# ---- Build outputs / packages (rebuildable, often huge) ----
+*.apk
+*.aab
+*.app
+*.unitypackage
+
+# ---- Third-party / VCS plugin leftovers ----
+/[Aa]ssets/AssetStoreTools*
+/[Aa]ssets/Plugins/PlasticSCM*
+
+# ---- Addressables / StreamingAssets build caches ----
+/[Aa]ssets/AddressableAssetsData/*/*.bin*
+/[Aa]ssets/StreamingAssets/aa.meta
+/[Aa]ssets/StreamingAssets/*/aa/*
+
+# ---- OS cruft ----
+.DS_Store
+Thumbs.db
+Desktop.ini
