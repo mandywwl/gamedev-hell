@@ -22,6 +22,12 @@ public class PlayerSpawner : MonoBehaviour
         if (player == null) return; // no player found; nothing to place
 
 
+        if (GameState.I == null)
+        {
+            if (defaultSpawn != null) player.position = defaultSpawn.position;
+            return;
+        }
+
         // Use requested SpawnPoint
         if (!string.IsNullOrEmpty(GameState.I.NextSpawnId))
         {

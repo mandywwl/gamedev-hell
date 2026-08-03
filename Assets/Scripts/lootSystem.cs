@@ -26,7 +26,7 @@ public class LootSystem : MonoBehaviour
         }
 
         // Update the HUD counter if the script exists in scene
-        var counter = FindObjectOfType<MedkitCounterUI>();
+        var counter = FindFirstObjectByType<MedkitCounterUI>();
         if (counter != null) counter.AddMedkit(quantity);
 
         Debug.Log($"Gave player {quantity} medkit(s).");

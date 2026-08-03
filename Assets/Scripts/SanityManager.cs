@@ -27,8 +27,8 @@ public class SanityManager : MonoBehaviour
 
     void Start()
     {
-        playerController = FindObjectOfType<PlayerController>();
-        hallucinationController = FindObjectOfType<HallucinationController>();
+        playerController = FindFirstObjectByType<PlayerController>();
+        hallucinationController = FindFirstObjectByType<HallucinationController>();
         currentSanity = maxSanity;
 
         if (AudioManager.I != null)

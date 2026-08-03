@@ -78,7 +78,7 @@ public class HallucinationController : MonoBehaviour
         }
 
         // Remove colliders
-        foreach (var col in ghost.GetComponentsInChildren<Collider>())
+        foreach (var col in ghost.GetComponentsInChildren<Collider2D>())
         {
             Destroy(col);
         }

@@ -3,7 +3,6 @@ using System.Collections;
 using TMPro;
 using static BossEncounter;
 using UnityEngine.SceneManagement;
-using UnityEngine.SocialPlatforms;
 
 public enum BattleState { START, PLAYERTURN, ENEMYTURN, WON, LOST, FLED, BUSY}
 
@@ -273,9 +272,22 @@ public class BattleSystem : MonoBehaviour
             Debug.Log("Not your turn!");
             return;
         }
-        //go to inventory UI here
-        playerUnit.currentHP += 20;
+
+        state = BattleState.BUSY;
+        StartCoroutine(PlayerUseItem());
+    }
+
+    IEnumerator PlayerUseItem()
+    {
+        //TODO: open inventory UI and let player choose an item
+        playerUnit.Heal(20f);
         playerHUD.SetHP(playerUnit.currentHP);
+        dialogueText.text = "Used a medkit! +" + 20 + " HP";
+
+        yield return new WaitForSeconds(2f);
+
+        state = BattleState.ENEMYTURN;
+        StartCoroutine(EnemyTurn());
     }
 
     public void OnRunButton()
