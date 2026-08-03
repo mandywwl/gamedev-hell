@@ -20,7 +20,13 @@ public class ScenePortal : MonoBehaviour
         // Only react to the Player
         if (!other.CompareTag("Player")) return;
 
-        // Save current scene position 
+        if (GameState.I == null)
+        {
+            Debug.LogError("ScenePortal: GameState not found. Cannot transition scene.");
+            return;
+        }
+
+        // Save current scene position
         var sceneName = SceneManager.GetActiveScene().name;
         if (!GameState.I.SceneMem.ContainsKey(sceneName))
             GameState.I.SceneMem[sceneName] = new GameState.SceneMemory();

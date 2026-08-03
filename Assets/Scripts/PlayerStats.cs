@@ -61,7 +61,7 @@ public class PlayerStats : MonoBehaviour
         UpdateEquipmentBonuses();
 
         // Get reference to sanity manager
-        sanityManager = FindObjectOfType<SanityManager>();
+        sanityManager = FindFirstObjectByType<SanityManager>();
     }
 
     void OnDestroy()

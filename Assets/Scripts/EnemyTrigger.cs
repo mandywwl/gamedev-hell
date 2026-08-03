@@ -16,20 +16,19 @@ public class BossEncounter : MonoBehaviour
         // Disable enemy trigger if enemy has already been defeated
         if (GameState.I != null && GameState.I.defeatedEnemies.Contains(uniqueEnemyId))
         {
-            transform.parent.gameObject.SetActive(false); // Disable 'Enemy' GameObject
+            if (transform.parent != null)
+                transform.parent.gameObject.SetActive(false); // Disable 'Enemy' GameObject
+            else
+                gameObject.SetActive(false);
         }
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
-
-        if (other.CompareTag("Player")) 
-        {   
-            Debug.Log("Entered boss trigger!"); 
-        }
-
         if (triggered) return;
         if (!other.CompareTag("Player")) return;
+
+        Debug.Log("Entered boss trigger!");
 
         triggered = true;
 
