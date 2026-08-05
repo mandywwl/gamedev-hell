@@ -10,18 +10,20 @@
 [Rr]ecordings/
 UIElementsSchema/
 
-# Asset meta file generated for the folder above (avoids stray asset warnings)
+# Asset meta files etc
 /Assets/Recordings.meta
+/Assets_dst/Unity.VisualScripting.Generated/VisualScripting.Flow/UnitOptions.db
 
-# ---- Per-user IDE / editor state (differs per teammate, causes noisy diffs) ----
+# ---- Per-user IDE / editor state ----
 .vs/
 .vscode/
 .idea/
 .gradle/
 ExportedObj/
 .consulo/
+.claude/
 
-# Auto-generated IDE project files (Unity regenerates these on open, per machine)
+# Auto-generated IDE project files
 *.csproj
 *.unityproj
 *.sln
@@ -44,7 +46,7 @@ ExportedObj/
 sysinfo.txt
 crashlytics-build.properties
 
-# ---- Build outputs / packages (rebuildable, often huge) ----
+# ---- Build outputs / packages (rebuildable) ----
 *.apk
 *.aab
 *.app

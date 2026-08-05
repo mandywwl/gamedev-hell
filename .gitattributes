@@ -1,0 +1,90 @@
+# Default... normalize line endings to LF in repo
+* text=auto eol=lf
+
+# --- Unity binary formats ---
+*.unity         binary
+*.prefab        binary
+*.asset         binary
+*.meta          binary
+*.mat           binary
+*.anim          binary
+*.controller    binary
+*.overrideController binary
+*.physicMaterial binary
+*.physicsMaterial2D binary
+*.playable      binary
+*.mask          binary
+*.brush         binary
+*.flare         binary
+*.fontsettings  binary
+*.guiskin       binary
+*.mixer         binary
+*.shadervariants binary
+*.spriteatlas   binary
+*.renderTexture binary
+*.lighting      binary
+*.lightingSettings binary
+*.giparams      binary
+*.signal        binary
+*.terrainlayer  binary
+
+# --- Scene / build settings ---
+*.unity         merge=unityyamlmerge
+*.prefab        merge=unityyamlmerge
+
+# --- Image / audio / video (binary) ---
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.bmp   binary
+*.tga   binary
+*.tiff  binary
+*.psd   binary
+*.hdr   binary
+*.exr   binary
+*.ico   binary
+*.mp3   binary
+*.ogg   binary
+*.wav   binary
+*.flac  binary
+*.mp4   binary
+*.mov   binary
+*.avi   binary
+*.webm  binary
+
+# --- Font / 3D / shader binaries ---
+*.ttf   binary
+*.otf   binary
+*.fbx   binary
+*.obj   binary
+*.blend binary
+*.dae   binary
+*.3ds   binary
+*.mb    binary
+*.ma    binary
+*.hlsl  text eol=lf
+*.cg    text eol=lf
+*.shader text eol=lf
+*.compute text eol=lf
+
+# --- Database / compiled ---
+*.db    binary
+*.dll   binary
+*.so    binary
+*.dylib binary
+*.exe   binary
+*.pdb   binary
+
+# --- Source code (text, LF) ---
+*.cs    text eol=lf
+*.js    text eol=lf
+*.ts    text eol=lf
+*.json  text eol=lf
+*.xml   text eol=lf
+*.yaml  text eol=lf
+*.yml   text eol=lf
+*.md    text eol=lf
+*.txt   text eol=lf
+*.asmdef text eol=lf
+*.asmref text eol=lf
