@@ -29,12 +29,6 @@ public class PlayerStats : MonoBehaviour
     public System.Action<float> OnAttackPowerChanged;
     public System.Action<float> OnDefensePowerChanged;
 
-    // Sanity Damage Debuff 
-    [Header("Sanity Damage Debuff")]
-    [SerializeField] private float lowSanityThreshold = 50f; // sanity value at which debuff kicks in
-    [SerializeField] private float lowSanityDamageMultiplier = 0.75f; // 25% less damage
-    private SanityManager sanityManager; 
-
     void Awake()
     {
         if (Instance == null)
@@ -60,8 +54,6 @@ public class PlayerStats : MonoBehaviour
         // Calculate initial equipment bonuses
         UpdateEquipmentBonuses();
 
-        // Get reference to sanity manager
-        sanityManager = FindFirstObjectByType<SanityManager>();
     }
 
     void OnDestroy()
@@ -176,12 +168,6 @@ public class PlayerStats : MonoBehaviour
     {
         float total = baseAttackPower + equipmentAttackBonus;
 
-        // Apply sanity debuff if sanity is low
-        if (sanityManager != null && sanityManager.CurrentSanity <= lowSanityThreshold)
-        {
-            total *= lowSanityDamageMultiplier;
-        }
-
         return total;
     }
 
@@ -203,12 +189,6 @@ public class PlayerStats : MonoBehaviour
             {
                 total = baseAttackPower + weaponStack.item.attackPower;
             }
-        }
-
-        // Apply sanity debuff if sanity is low
-        if (sanityManager != null && sanityManager.CurrentSanity <= lowSanityThreshold)
-        {
-            total *= lowSanityDamageMultiplier;
         }
 
         return total;
