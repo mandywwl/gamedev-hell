@@ -566,6 +566,7 @@ public enum ItemType
     MedicalSerum,
     SanityPills,
     AnomalyPills,
+    Candy,
 
     // -- Key & Quest Items --
     Keycard,

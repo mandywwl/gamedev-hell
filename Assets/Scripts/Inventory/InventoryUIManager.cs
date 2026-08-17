@@ -1,61 +1,52 @@
+using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
+// Builds its own list-style inventory UI at runtime - no prefab/Inspector wiring required.
+// Just having this component on a GameObject in the scene is enough.
 public class InventoryUIManager : MonoBehaviour
 {
     public static InventoryUIManager Instance { get; private set; }
 
-    [Header("UI References")]
-    public GameObject inventoryPanel;      // Root to show/hide
-    public RectTransform slotsContainer;   // Grid container
-    public GameObject slotPrefab;          // Prefab with InventorySlotUI
+    public bool IsOpen => isOpen;
 
-    [Header("Slots")]
-    [SerializeField] int initialSlotCount = 8;
+    [Header("Layout")]
+    [SerializeField] private Vector2 panelSize = new Vector2(560, 640);
+    [SerializeField] private Color panelColor = new Color(0.05f, 0.05f, 0.05f, 0.92f);
+    [SerializeField] private Color rowNormalColor = new Color(1f, 1f, 1f, 0.05f);
+    [SerializeField] private Color rowSelectedColor = new Color(1f, 0.85f, 0.2f, 0.35f);
+    [SerializeField] private float rowHeight = 34f;
+    [SerializeField] private float quantityColumnWidth = 100f;
 
-    // Legacy aliases
-    public void Toggle() => ToggleInventory();
+    [Header("Navigation")]
+    [SerializeField] private KeyCode navigateUpKey = KeyCode.UpArrow;
+    [SerializeField] private KeyCode navigateDownKey = KeyCode.DownArrow;
+    [SerializeField] private KeyCode selectKey = KeyCode.Return;
+    [SerializeField] private KeyCode selectKeyAlt = KeyCode.Space;
 
-    public void Refresh()
-    {
-        // Later: update icons/counts from your Inventory system
-    }
+    // --- Runtime-built UI references ---
+    private GameObject inventoryRoot;
+    private RectTransform contentRoot;
+    private TextMeshProUGUI emptyStateLabel;
+    private GameObject confirmDialog;
+    private TextMeshProUGUI confirmMessageText;
+    private Image confirmYesButtonImage;
+    private Image confirmNoButtonImage;
+    private bool confirmYesSelected = true;
+    private static readonly Color ConfirmButtonNormalColor = new Color(1f, 1f, 1f, 0.12f);
 
-    // --- Internals ---
-    private void BuildSlotsIfNeeded()
-    {
-        if (slotsContainer == null || slotPrefab == null) return;
+    private GameObject resultDialog;
+    private TextMeshProUGUI resultMessageText;
+    private bool isResultOpen = false;
 
-        if (slotsContainer.childCount == 0 && initialSlotCount > 0)
-        {
-            slotUIs.Clear();
-            for (int i = 0; i < initialSlotCount; i++)
-            {
-                var go = Instantiate(slotPrefab, slotsContainer);
-                var slot = go.GetComponent<InventorySlotUI>();
-                if (slot == null) slot = go.AddComponent<InventorySlotUI>();
-                slot.Initialize(i, this);
-                slotUIs.Add(slot);
-            }
-        }
-        else
-        {
-            slotUIs.Clear();
-            for (int i = 0; i < slotsContainer.childCount; i++)
-            {
-                var slot = slotsContainer.GetChild(i).GetComponent<InventorySlotUI>();
-                if (slot != null)
-                {
-                    slot.Initialize(i, this);
-                    slotUIs.Add(slot);
-                }
-            }
-        }
-    }
-    public void HideTooltip() { }
-    public void ShowTooltip(ItemStack item, RectTransform anchor) { }
-    public void Close()  => CloseInventory();
-    public void Open()   => OpenInventory();
+    private readonly List<InventoryListRowUI> rowUIs = new();
+    private readonly List<int> occupiedSlots = new(); // list position -> InventorySystem slot index
+    private int selectedListIndex = 0;
+    private bool isOpen = false;
+    private bool isConfirmOpen = false;
 
     private void Awake()
     {
@@ -63,33 +54,523 @@ public class InventoryUIManager : MonoBehaviour
         Instance = this;
     }
 
-    private readonly List<InventorySlotUI> slotUIs = new();
-    private bool isOpen = false;
-
     private void Start()
     {
-        if (inventoryPanel != null) inventoryPanel.SetActive(false);
-        BuildSlotsIfNeeded();
+        HideLegacyChildren();
+        EnsureEventSystem();
+        BuildUI();
+    }
+
+    // Anything that was already parented under this GameObject before new UI
+    // e.g. our old grid-style inventory panel, this component happens to live inside gets hidden.
+    private void HideLegacyChildren()
+    {
+        for (int i = 0; i < transform.childCount; i++)
+            transform.GetChild(i).gameObject.SetActive(false);
+    }
+
+    private static void EnsureEventSystem()
+    {
+        if (EventSystem.current != null) return;
+        var go = new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
+        DontDestroyOnLoad(go);
+    }
+
+    private void Update()
+    {
+        if (!isOpen) return;
+
+        // The inventory is exploration-only - close immediately if combat starts.
+        if (GameState.I != null && GameState.I.CurrentMode == GameState.PlayMode.Combat)
+        {
+            CloseInventory();
+            return;
+        }
+
+        if (isResultOpen)
+        {
+            if (Input.GetKeyDown(selectKey) || Input.GetKeyDown(selectKeyAlt) ||
+                Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Escape))
+                CloseResultPopup();
+            return;
+        }
+
+        if (isConfirmOpen)
+        {
+            if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow) ||
+                Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D))
+            {
+                confirmYesSelected = !confirmYesSelected;
+                UpdateConfirmSelectionVisuals();
+            }
+            else if (Input.GetKeyDown(selectKey) || Input.GetKeyDown(selectKeyAlt) || Input.GetKeyDown(KeyCode.KeypadEnter))
+            {
+                if (confirmYesSelected) ConfirmYes(); else ConfirmNo();
+            }
+            else if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                ConfirmNo();
+            }
+            return;
+        }
+
+        // Escape while just browsing the list (no sub-dialog open) is handled by
+        // PauseManager, which closes the inventory - see PauseManager.Update().
+
+        if (occupiedSlots.Count > 0)
+        {
+            if (Input.GetKeyDown(navigateUpKey) || Input.GetKeyDown(KeyCode.W)) MoveSelection(-1);
+            if (Input.GetKeyDown(navigateDownKey) || Input.GetKeyDown(KeyCode.S)) MoveSelection(1);
+
+            if (Input.GetKeyDown(selectKey) || Input.GetKeyDown(selectKeyAlt) || Input.GetKeyDown(KeyCode.KeypadEnter))
+                OpenConfirmForSelected();
+        }
+    }
+
+    private void MoveSelection(int direction)
+    {
+        selectedListIndex = (selectedListIndex + direction + occupiedSlots.Count) % occupiedSlots.Count;
+        UpdateSelectionVisuals();
+    }
+
+    private void OpenConfirmForSelected()
+    {
+        if (selectedListIndex < 0 || selectedListIndex >= occupiedSlots.Count) return;
+        if (InventorySystem.Instance == null) return;
+
+        var stack = InventorySystem.Instance.GetSlot(occupiedSlots[selectedListIndex]);
+        if (stack == null || stack.IsEmpty()) return;
+
+        isConfirmOpen = true;
+        confirmYesSelected = true;
+        confirmMessageText.text = $"Use {stack.item.itemName}?";
+        confirmDialog.SetActive(true);
+        UpdateConfirmSelectionVisuals();
+    }
+
+    private void UpdateConfirmSelectionVisuals()
+    {
+        if (confirmYesButtonImage != null)
+            confirmYesButtonImage.color = confirmYesSelected ? rowSelectedColor : ConfirmButtonNormalColor;
+        if (confirmNoButtonImage != null)
+            confirmNoButtonImage.color = !confirmYesSelected ? rowSelectedColor : ConfirmButtonNormalColor;
+    }
+
+    private void ConfirmYes()
+    {
+        isConfirmOpen = false;
+        confirmDialog.SetActive(false);
+
+        if (selectedListIndex < 0 || selectedListIndex >= occupiedSlots.Count) return;
+        if (InventorySystem.Instance == null) return;
+
+        int inventorySlotIndex = occupiedSlots[selectedListIndex];
+        var result = InventorySystem.Instance.UseItem(inventorySlotIndex);
+        Refresh();
+        ShowResultPopup(result.message);
+    }
+
+    private void ConfirmNo()
+    {
+        isConfirmOpen = false;
+        confirmDialog.SetActive(false);
+    }
+
+    private void ShowResultPopup(string message)
+    {
+        isResultOpen = true;
+        resultMessageText.text = message;
+        resultDialog.SetActive(true);
+    }
+
+    private void CloseResultPopup()
+    {
+        isResultOpen = false;
+        resultDialog.SetActive(false);
+    }
+
+    // --- UI construction ---
+    private void BuildUI()
+    {
+        var canvasGO = new GameObject("InventoryCanvas", typeof(RectTransform));
+        canvasGO.transform.SetParent(transform, false);
+
+        var canvas = canvasGO.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 50;
+
+        var scaler = canvasGO.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920, 1080);
+        scaler.matchWidthOrHeight = 0.5f;
+
+        canvasGO.AddComponent<GraphicRaycaster>();
+
+        // --- Root panel ---
+        var panelGO = new GameObject("Panel", typeof(RectTransform));
+        panelGO.transform.SetParent(canvasGO.transform, false);
+        var panelRect = panelGO.GetComponent<RectTransform>();
+        panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0.5f);
+        panelRect.pivot = new Vector2(0.5f, 0.5f);
+        panelRect.sizeDelta = panelSize;
+
+        var panelImage = panelGO.AddComponent<Image>();
+        panelImage.color = panelColor;
+
+        var panelLayout = panelGO.AddComponent<VerticalLayoutGroup>();
+        panelLayout.padding = new RectOffset(16, 16, 16, 16);
+        panelLayout.spacing = 10;
+        panelLayout.childControlWidth = true;
+        panelLayout.childControlHeight = true;
+        panelLayout.childForceExpandWidth = true;
+        panelLayout.childForceExpandHeight = false;
+
+        var title = CreateText(panelGO.transform, "Title", TextAlignmentOptions.Center);
+        title.text = "Inventory";
+        title.fontStyle = FontStyles.Bold;
+        title.fontSize = 28;
+        title.gameObject.AddComponent<LayoutElement>().preferredHeight = 36;
+
+        // --- Header row (Items | Quantity) ---
+        var headerGO = new GameObject("HeaderRow", typeof(RectTransform));
+        headerGO.transform.SetParent(panelGO.transform, false);
+        headerGO.AddComponent<LayoutElement>().preferredHeight = 30;
+        var headerHlg = headerGO.AddComponent<HorizontalLayoutGroup>();
+        headerHlg.padding = new RectOffset(10, 10, 0, 4);
+        headerHlg.spacing = 8;
+        headerHlg.childControlWidth = true;
+        headerHlg.childControlHeight = true;
+        headerHlg.childForceExpandHeight = true;
+
+        var itemsHeader = CreateText(headerGO.transform, "ItemsHeader", TextAlignmentOptions.MidlineLeft);
+        itemsHeader.text = "Items";
+        itemsHeader.fontStyle = FontStyles.Bold;
+        itemsHeader.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
+
+        var qtyHeader = CreateText(headerGO.transform, "QuantityHeader", TextAlignmentOptions.MidlineRight);
+        qtyHeader.text = "Quantity";
+        qtyHeader.fontStyle = FontStyles.Bold;
+        qtyHeader.gameObject.AddComponent<LayoutElement>().preferredWidth = quantityColumnWidth;
+
+        // --- Scrollable row list ---
+        var scrollGO = new GameObject("ScrollView", typeof(RectTransform));
+        scrollGO.transform.SetParent(panelGO.transform, false);
+        scrollGO.AddComponent<LayoutElement>().flexibleHeight = 1;
+        var scrollRect = scrollGO.AddComponent<ScrollRect>();
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+        scrollRect.movementType = ScrollRect.MovementType.Clamped;
+
+        var viewportGO = new GameObject("Viewport", typeof(RectTransform));
+        viewportGO.transform.SetParent(scrollGO.transform, false);
+        var viewportRect = viewportGO.GetComponent<RectTransform>();
+        viewportRect.anchorMin = Vector2.zero;
+        viewportRect.anchorMax = Vector2.one;
+        viewportRect.offsetMin = Vector2.zero;
+        viewportRect.offsetMax = Vector2.zero;
+        viewportGO.AddComponent<RectMask2D>();
+
+        var contentGO = new GameObject("Content", typeof(RectTransform));
+        contentGO.transform.SetParent(viewportGO.transform, false);
+        contentRoot = contentGO.GetComponent<RectTransform>();
+        contentRoot.anchorMin = new Vector2(0, 1);
+        contentRoot.anchorMax = new Vector2(1, 1);
+        contentRoot.pivot = new Vector2(0.5f, 1);
+        contentRoot.sizeDelta = new Vector2(0, 0);
+        var contentVlg = contentGO.AddComponent<VerticalLayoutGroup>();
+        contentVlg.childControlWidth = true;
+        contentVlg.childControlHeight = true;
+        contentVlg.childForceExpandWidth = true;
+        contentVlg.childForceExpandHeight = false;
+        contentVlg.spacing = 3;
+        contentGO.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        scrollRect.viewport = viewportRect;
+        scrollRect.content = contentRoot;
+
+        // --- Empty state ---
+        emptyStateLabel = CreateText(panelGO.transform, "EmptyLabel", TextAlignmentOptions.Center);
+        emptyStateLabel.text = "Inventory is empty";
+        emptyStateLabel.color = new Color(1, 1, 1, 0.6f);
+        emptyStateLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 30;
+        emptyStateLabel.gameObject.SetActive(false);
+
+        BuildConfirmDialog(canvasGO.transform);
+        BuildResultDialog(canvasGO.transform);
+
+        inventoryRoot = canvasGO;
+        inventoryRoot.SetActive(false);
+    }
+
+    private void BuildResultDialog(Transform canvasParent)
+    {
+        var overlayGO = new GameObject("ResultOverlay", typeof(RectTransform));
+        overlayGO.transform.SetParent(canvasParent, false);
+        var overlayRect = overlayGO.GetComponent<RectTransform>();
+        overlayRect.anchorMin = Vector2.zero;
+        overlayRect.anchorMax = Vector2.one;
+        overlayRect.offsetMin = Vector2.zero;
+        overlayRect.offsetMax = Vector2.zero;
+        overlayGO.AddComponent<Image>().color = new Color(0, 0, 0, 0.65f);
+        var overlayButton = overlayGO.AddComponent<Button>();
+        overlayButton.transition = Selectable.Transition.None;
+        overlayButton.onClick.AddListener(CloseResultPopup); // click outside the box dismisses it
+
+        var boxGO = new GameObject("DialogBox", typeof(RectTransform));
+        boxGO.transform.SetParent(overlayGO.transform, false);
+        var boxRect = boxGO.GetComponent<RectTransform>();
+        boxRect.anchorMin = boxRect.anchorMax = new Vector2(0.5f, 0.5f);
+        boxRect.pivot = new Vector2(0.5f, 0.5f);
+        boxRect.sizeDelta = new Vector2(380, 190);
+        boxGO.AddComponent<Image>().color = new Color(0.12f, 0.12f, 0.12f, 0.97f); // blocks clicks from reaching overlay
+
+        var boxLayout = boxGO.AddComponent<VerticalLayoutGroup>();
+        boxLayout.padding = new RectOffset(20, 20, 20, 20);
+        boxLayout.spacing = 16;
+        boxLayout.childControlWidth = true;
+        boxLayout.childControlHeight = true;
+        boxLayout.childForceExpandHeight = false;
+
+        resultMessageText = CreateText(boxGO.transform, "Message", TextAlignmentOptions.Center);
+        resultMessageText.fontSize = 24;
+        resultMessageText.enableWordWrapping = true;
+        resultMessageText.gameObject.AddComponent<LayoutElement>().preferredHeight = 80;
+
+        var buttonRowGO = new GameObject("ButtonRow", typeof(RectTransform));
+        buttonRowGO.transform.SetParent(boxGO.transform, false);
+        buttonRowGO.AddComponent<LayoutElement>().preferredHeight = 50;
+        var buttonRowHlg = buttonRowGO.AddComponent<HorizontalLayoutGroup>();
+        buttonRowHlg.childAlignment = TextAnchor.MiddleCenter;
+        buttonRowHlg.childControlWidth = true;
+        buttonRowHlg.childControlHeight = true;
+        buttonRowHlg.childForceExpandWidth = false;
+        buttonRowHlg.childForceExpandHeight = true;
+
+        var okImage = CreateDialogButton(buttonRowGO.transform, "OK", CloseResultPopup);
+        okImage.gameObject.AddComponent<LayoutElement>().preferredWidth = 120;
+
+        resultDialog = overlayGO;
+        resultDialog.SetActive(false);
+    }
+
+    private void BuildConfirmDialog(Transform canvasParent)
+    {
+        var overlayGO = new GameObject("ConfirmOverlay", typeof(RectTransform));
+        overlayGO.transform.SetParent(canvasParent, false);
+        var overlayRect = overlayGO.GetComponent<RectTransform>();
+        overlayRect.anchorMin = Vector2.zero;
+        overlayRect.anchorMax = Vector2.one;
+        overlayRect.offsetMin = Vector2.zero;
+        overlayRect.offsetMax = Vector2.zero;
+        overlayGO.AddComponent<Image>().color = new Color(0, 0, 0, 0.65f);
+        var overlayButton = overlayGO.AddComponent<Button>();
+        overlayButton.transition = Selectable.Transition.None;
+        overlayButton.onClick.AddListener(ConfirmNo); // click outside the box cancels
+
+        var boxGO = new GameObject("DialogBox", typeof(RectTransform));
+        boxGO.transform.SetParent(overlayGO.transform, false);
+        var boxRect = boxGO.GetComponent<RectTransform>();
+        boxRect.anchorMin = boxRect.anchorMax = new Vector2(0.5f, 0.5f);
+        boxRect.pivot = new Vector2(0.5f, 0.5f);
+        boxRect.sizeDelta = new Vector2(380, 190);
+        boxGO.AddComponent<Image>().color = new Color(0.12f, 0.12f, 0.12f, 0.97f); // blocks clicks from reaching overlay
+
+        var boxLayout = boxGO.AddComponent<VerticalLayoutGroup>();
+        boxLayout.padding = new RectOffset(20, 20, 20, 20);
+        boxLayout.spacing = 16;
+        boxLayout.childControlWidth = true;
+        boxLayout.childControlHeight = true;
+        boxLayout.childForceExpandHeight = false;
+
+        confirmMessageText = CreateText(boxGO.transform, "Message", TextAlignmentOptions.Center);
+        confirmMessageText.fontSize = 24;
+        confirmMessageText.enableWordWrapping = true;
+        confirmMessageText.gameObject.AddComponent<LayoutElement>().preferredHeight = 60;
+
+        var buttonRowGO = new GameObject("ButtonRow", typeof(RectTransform));
+        buttonRowGO.transform.SetParent(boxGO.transform, false);
+        buttonRowGO.AddComponent<LayoutElement>().preferredHeight = 50;
+        var buttonRowHlg = buttonRowGO.AddComponent<HorizontalLayoutGroup>();
+        buttonRowHlg.spacing = 20;
+        buttonRowHlg.childControlWidth = true;
+        buttonRowHlg.childControlHeight = true;
+        buttonRowHlg.childForceExpandWidth = true;
+        buttonRowHlg.childForceExpandHeight = true;
+
+        confirmYesButtonImage = CreateDialogButton(buttonRowGO.transform, "Yes", ConfirmYes);
+        confirmNoButtonImage = CreateDialogButton(buttonRowGO.transform, "No", ConfirmNo);
+
+        confirmDialog = overlayGO;
+        confirmDialog.SetActive(false);
+    }
+
+    private Image CreateDialogButton(Transform parent, string label, Action onClick)
+    {
+        var go = new GameObject(label + "Button", typeof(RectTransform));
+        go.transform.SetParent(parent, false);
+        var image = go.AddComponent<Image>();
+        image.color = ConfirmButtonNormalColor;
+        var button = go.AddComponent<Button>();
+        button.onClick.AddListener(() => onClick());
+
+        var text = CreateText(go.transform, "Label", TextAlignmentOptions.Center);
+        text.text = label;
+        var textRect = text.GetComponent<RectTransform>();
+        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMax = Vector2.one;
+        textRect.offsetMin = Vector2.zero;
+        textRect.offsetMax = Vector2.zero;
+
+        return image;
+    }
+
+    private static TextMeshProUGUI CreateText(Transform parent, string name, TextAlignmentOptions alignment)
+    {
+        var go = new GameObject(name, typeof(RectTransform));
+        go.transform.SetParent(parent, false);
+        var text = go.AddComponent<TextMeshProUGUI>();
+        text.alignment = alignment;
+        text.fontSize = 22;
+        text.color = Color.white;
+        text.raycastTarget = false;
+        return text;
+    }
+
+    private InventoryListRowUI CreateRow(int index)
+    {
+        var rowGO = new GameObject($"Row_{index}", typeof(RectTransform));
+        rowGO.transform.SetParent(contentRoot, false);
+        rowGO.AddComponent<LayoutElement>().preferredHeight = rowHeight;
+
+        var bg = rowGO.AddComponent<Image>();
+        bg.color = rowNormalColor;
+
+        var hlg = rowGO.AddComponent<HorizontalLayoutGroup>();
+        hlg.padding = new RectOffset(10, 10, 4, 4);
+        hlg.spacing = 8;
+        hlg.childControlWidth = true;
+        hlg.childControlHeight = true;
+        hlg.childForceExpandWidth = false;
+        hlg.childForceExpandHeight = true;
+
+        var nameText = CreateText(rowGO.transform, "NameText", TextAlignmentOptions.MidlineLeft);
+        nameText.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
+
+        var qtyText = CreateText(rowGO.transform, "QuantityText", TextAlignmentOptions.MidlineRight);
+        qtyText.gameObject.AddComponent<LayoutElement>().preferredWidth = quantityColumnWidth;
+
+        var row = rowGO.AddComponent<InventoryListRowUI>();
+        row.background = bg;
+        row.nameText = nameText;
+        row.quantityText = qtyText;
+        row.normalColor = rowNormalColor;
+        row.selectedColor = rowSelectedColor;
+        row.Initialize(index, this);
+
+        return row;
+    }
+
+    private void EnsureRowCount(int count)
+    {
+        while (rowUIs.Count < count)
+            rowUIs.Add(CreateRow(rowUIs.Count));
+
+        for (int i = 0; i < rowUIs.Count; i++)
+            rowUIs[i].gameObject.SetActive(i < count);
+    }
+
+    public void Refresh()
+    {
+        occupiedSlots.Clear();
+        if (InventorySystem.Instance != null)
+            occupiedSlots.AddRange(InventorySystem.Instance.GetOccupiedSlotIndices());
+
+        if (emptyStateLabel != null) emptyStateLabel.gameObject.SetActive(occupiedSlots.Count == 0);
+
+        if (occupiedSlots.Count == 0)
+        {
+            selectedListIndex = 0;
+            EnsureRowCount(0);
+            return;
+        }
+
+        selectedListIndex = Mathf.Clamp(selectedListIndex, 0, occupiedSlots.Count - 1);
+
+        EnsureRowCount(occupiedSlots.Count);
+        for (int i = 0; i < occupiedSlots.Count; i++)
+        {
+            var stack = InventorySystem.Instance.GetSlot(occupiedSlots[i]);
+            rowUIs[i].SetItem(stack);
+        }
+
+        UpdateSelectionVisuals();
+    }
+
+    private void UpdateSelectionVisuals()
+    {
+        for (int i = 0; i < occupiedSlots.Count; i++)
+            rowUIs[i].SetSelected(i == selectedListIndex);
     }
 
     // --- Public API ---
     public void ToggleInventory() { if (isOpen) CloseInventory(); else OpenInventory(); }
+    public void Toggle() => ToggleInventory();
+    public void Open() => OpenInventory();
+    public void Close() => CloseInventory();
+
     public void OpenInventory()
     {
-        if (inventoryPanel == null) return;
+        if (inventoryRoot == null) return;
+
+        if (GameState.I != null && GameState.I.CurrentMode == GameState.PlayMode.Combat)
+        {
+            Debug.Log("Inventory is only accessible outside of combat.");
+            return;
+        }
+
+        if (PauseManager.isPaused)
+        {
+            Debug.Log("Inventory is unavailable while the pause menu is open.");
+            return;
+        }
+
         isOpen = true;
-        inventoryPanel.SetActive(true);
+        isConfirmOpen = false;
+        isResultOpen = false;
+        if (confirmDialog != null) confirmDialog.SetActive(false);
+        if (resultDialog != null) resultDialog.SetActive(false);
+        inventoryRoot.SetActive(true);
         Time.timeScale = 0f; // optional pause
+        selectedListIndex = 0;
         Refresh();
     }
+
     public void CloseInventory()
     {
-        if (inventoryPanel == null) return;
+        if (inventoryRoot == null) return;
         isOpen = false;
-        inventoryPanel.SetActive(false);
+        isConfirmOpen = false;
+        isResultOpen = false;
+        if (confirmDialog != null) confirmDialog.SetActive(false);
+        if (resultDialog != null) resultDialog.SetActive(false);
+        inventoryRoot.SetActive(false);
         Time.timeScale = 1f;
     }
 
-    // --- Minimal hooks for other scripts ---
-    public void OnSlotClicked(int index) { /* no-op for now */ }
+    // Clicking a row: first click highlights it, clicking the already-highlighted row opens the use prompt.
+    public void OnSlotClicked(int listIndex)
+    {
+        if (!isOpen || isConfirmOpen || isResultOpen) return;
+        if (listIndex < 0 || listIndex >= occupiedSlots.Count) return;
+
+        if (selectedListIndex == listIndex)
+        {
+            OpenConfirmForSelected();
+        }
+        else
+        {
+            selectedListIndex = listIndex;
+            UpdateSelectionVisuals();
+        }
+    }
 }

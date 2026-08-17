@@ -10,7 +10,10 @@ public class InventorySlotUI : MonoBehaviour
     
     [Tooltip("Text component that shows item quantity")]
     public TextMeshProUGUI quantityText;
-    
+
+    [Tooltip("Optional text component that shows the item's name (used for list-style layouts)")]
+    public TextMeshProUGUI itemNameText;
+
     [Tooltip("Background image of the slot")]
     public Image backgroundImage;
     
@@ -61,6 +64,11 @@ public class InventorySlotUI : MonoBehaviour
                 // Look for any TextMeshProUGUI component in children
                 quantityText = GetComponentInChildren<TextMeshProUGUI>();
             }
+        }
+
+        if (itemNameText == null)
+        {
+            itemNameText = transform.Find("ItemNameText")?.GetComponent<TextMeshProUGUI>();
         }
 
         if (backgroundImage == null)
@@ -117,13 +125,22 @@ public class InventorySlotUI : MonoBehaviour
             
             if (quantityText != null)
                 quantityText.gameObject.SetActive(false);
-            
+
+            if (itemNameText != null)
+                itemNameText.gameObject.SetActive(false);
+
             if (backgroundImage != null)
                 backgroundImage.color = emptySlotColor;
         }
         else
         {
             // Filled slot
+            if (itemNameText != null)
+            {
+                itemNameText.gameObject.SetActive(true);
+                itemNameText.text = itemStack.item.itemName;
+            }
+
             if (itemIcon != null)
             {
                 itemIcon.gameObject.SetActive(true);

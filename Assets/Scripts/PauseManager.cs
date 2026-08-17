@@ -46,6 +46,14 @@ public class PauseManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+            // Inventory takes priority over Pause on the same keypress - close it instead
+            // of also opening Pause on top, and let a later press open Pause on its own.
+            if (InventoryUIManager.Instance != null && InventoryUIManager.Instance.IsOpen)
+            {
+                InventoryUIManager.Instance.CloseInventory();
+                return;
+            }
+
             if (GameState.I != null)
             {
                 if (GameState.I.CurrentMode == GameState.PlayMode.Exploration)

@@ -66,7 +66,7 @@ public class PlayerStats : MonoBehaviour
 
     private void InitializeStats()
     {
-        currentHP = maxHP;
+        currentHP = maxHP * 0.9f;
         combatHP = currentHP;
 
         // Trigger initial UI updates
@@ -238,23 +238,27 @@ public class PlayerStats : MonoBehaviour
     }
 
 
-    // Use a consumable item and apply its effects
-    public bool UseConsumable(Item consumableItem)
+    // Use a consumable item and apply its effects. Returns whether it was used, plus a
+    // human-readable reason (used for the inventory's "Item used!" / "Can't use..." popup).
+    public (bool success, string message) UseConsumable(Item consumableItem)
     {
-        if (!consumableItem.isConsumable) return false;
+        if (!consumableItem.isConsumable)
+            return (false, $"{consumableItem.itemName} can't be used this way.");
 
-        if (InventorySystem.Instance != null && InventorySystem.Instance.HasItem(consumableItem, 1))
-        {
+        if (InventorySystem.Instance == null || !InventorySystem.Instance.HasItem(consumableItem, 1))
+            return (false, $"You don't have any {consumableItem.itemName} left.");
 
-            // Apply effects using float values from Item
-            if (consumableItem.healingAmount > 0f)
-                Heal(consumableItem.healingAmount);
+        if (consumableItem.healingAmount > 0f && GetCurrentHP() >= maxHP)
+            return (false, $"Can't use {consumableItem.itemName} - already at max health.");
 
-            Debug.Log($"Used {consumableItem.itemName}!");
-            return true;
-        }
+        // Apply effects using float values from Item
+        if (consumableItem.healingAmount > 0f)
+            Heal(consumableItem.healingAmount);
 
-        return false;
+        InventorySystem.Instance.RemoveItem(consumableItem, 1);
+
+        Debug.Log($"Used {consumableItem.itemName}!");
+        return (true, $"{consumableItem.itemName} used!");
     }
     
     #endregion
