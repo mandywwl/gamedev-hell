@@ -31,6 +31,8 @@ public class InventoryUIManager : MonoBehaviour
     private GameObject inventoryRoot;
     private RectTransform contentRoot;
     private TextMeshProUGUI emptyStateLabel;
+    private TextMeshProUGUI healthText;
+    private TextMeshProUGUI descriptionText;
     private GameObject confirmDialog;
     private TextMeshProUGUI confirmMessageText;
     private Image confirmYesButtonImage;
@@ -231,6 +233,11 @@ public class InventoryUIManager : MonoBehaviour
         title.fontSize = 28;
         title.gameObject.AddComponent<LayoutElement>().preferredHeight = 36;
 
+        // --- Health readout ---
+        healthText = CreateText(panelGO.transform, "HealthText", TextAlignmentOptions.Center);
+        healthText.fontSize = 22;
+        healthText.gameObject.AddComponent<LayoutElement>().preferredHeight = 26;
+
         // --- Header row (Items | Quantity) ---
         var headerGO = new GameObject("HeaderRow", typeof(RectTransform));
         headerGO.transform.SetParent(panelGO.transform, false);
@@ -294,6 +301,13 @@ public class InventoryUIManager : MonoBehaviour
         emptyStateLabel.color = new Color(1, 1, 1, 0.6f);
         emptyStateLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 30;
         emptyStateLabel.gameObject.SetActive(false);
+
+        // --- Selected item description ---
+        descriptionText = CreateText(panelGO.transform, "DescriptionText", TextAlignmentOptions.TopLeft);
+        descriptionText.fontSize = 18;
+        descriptionText.color = new Color(1f, 1f, 1f, 0.75f);
+        descriptionText.enableWordWrapping = true;
+        descriptionText.gameObject.AddComponent<LayoutElement>().preferredHeight = 60;
 
         BuildConfirmDialog(canvasGO.transform);
         BuildResultDialog(canvasGO.transform);
@@ -481,6 +495,8 @@ public class InventoryUIManager : MonoBehaviour
 
     public void Refresh()
     {
+        UpdateHealthText();
+
         occupiedSlots.Clear();
         if (InventorySystem.Instance != null)
             occupiedSlots.AddRange(InventorySystem.Instance.GetOccupiedSlotIndices());
@@ -491,6 +507,7 @@ public class InventoryUIManager : MonoBehaviour
         {
             selectedListIndex = 0;
             EnsureRowCount(0);
+            UpdateSelectionVisuals();
             return;
         }
 
@@ -510,6 +527,40 @@ public class InventoryUIManager : MonoBehaviour
     {
         for (int i = 0; i < occupiedSlots.Count; i++)
             rowUIs[i].SetSelected(i == selectedListIndex);
+
+        UpdateDescriptionText();
+    }
+
+    private void UpdateHealthText()
+    {
+        if (healthText == null) return;
+
+        if (PlayerStats.Instance != null)
+            healthText.text = $"Health: {PlayerStats.Instance.GetCurrentHP():F0} / {PlayerStats.Instance.maxHP:F0}";
+        else
+            healthText.text = string.Empty;
+    }
+
+    private void UpdateDescriptionText()
+    {
+        if (descriptionText == null) return;
+
+        if (InventorySystem.Instance == null || selectedListIndex < 0 || selectedListIndex >= occupiedSlots.Count)
+        {
+            descriptionText.text = string.Empty;
+            return;
+        }
+
+        var stack = InventorySystem.Instance.GetSlot(occupiedSlots[selectedListIndex]);
+        if (stack == null || stack.IsEmpty())
+        {
+            descriptionText.text = string.Empty;
+            return;
+        }
+
+        descriptionText.text = string.IsNullOrEmpty(stack.item.description)
+            ? stack.item.itemName
+            : stack.item.description;
     }
 
     // --- Public API ---

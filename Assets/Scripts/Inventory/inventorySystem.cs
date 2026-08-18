@@ -83,6 +83,7 @@ public class InventorySystem : MonoBehaviour
         var item = ScriptableObject.CreateInstance<Item>();
         item.id = 1;
         item.itemName = "Bandages";
+        item.description = "Restores 25 HP.";
         item.category = ItemCategory.Consumables;
         item.type = ItemType.Bandages;
         item.isConsumable = true;
@@ -101,6 +102,7 @@ public class InventorySystem : MonoBehaviour
         var item = ScriptableObject.CreateInstance<Item>();
         item.id = 2;
         item.itemName = "Candy";
+        item.description = "A sugary snack. Restores 10 HP.";
         item.category = ItemCategory.Consumables;
         item.type = ItemType.Candy;
         item.isConsumable = true;
