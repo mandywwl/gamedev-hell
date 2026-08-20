@@ -37,12 +37,11 @@ public class AudioManager : MonoBehaviour
         if (I != null && I != this)
         {
             Destroy(gameObject);
+            return;
         }
-        else
-        {
-            I = this;
-            //DontDestroyOnLoad(gameObject);
-        }
+       
+        I = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     // Method for SFX

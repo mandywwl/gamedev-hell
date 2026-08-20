@@ -50,7 +50,9 @@ public class BossEncounter : MonoBehaviour
         BattleTransfer.returnSceneName = SceneManager.GetActiveScene().name;
         BattleTransfer.returnPosition = other.transform.position;
 
-        SceneManager.LoadScene(combatSceneName);
+        // Start visual transition instead of immediately loading
+        SceneTransition.I.LoadBattleScene(combatSceneName);
+        // previous SceneManager.LoadScene(combatSceneName);
     }
 
     public static class BattleTransfer
