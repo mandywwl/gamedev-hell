@@ -33,8 +33,20 @@ public class PauseManager : MonoBehaviour
 
     public static bool isPaused = false;
 
+    private static PauseManager instance;
+
     void Awake()
     {
+        // Only one PauseManager should ever be active - a second one (e.g. a scene
+        // that accidentally has its own local copy alongside the persisted one)
+        // would double-handle Escape and fight over the shared isPaused state.
+        if (instance != null && instance != this)
+        {
+            Destroy(this);
+            return;
+        }
+        instance = this;
+
         // Ensure UI is hidden and game is running at the start
         if (pausePanel) pausePanel.SetActive(false);
         if (settingsMenu) settingsMenu.SetActive(false);
