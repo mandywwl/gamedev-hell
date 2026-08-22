@@ -39,7 +39,11 @@ public class PlayerStats : MonoBehaviour
         }
         else
         {
-            Destroy(gameObject);
+            // A duplicate PlayerStats (e.g. the visual clone BattleSystem instantiates for
+            // combat) - destroy only this redundant component, not the GameObject, so its
+            // SpriteRenderer/Animator still render. BattleSystem reads stats via the
+            // canonical PlayerStats.Instance, not this component, so losing it is harmless.
+            Destroy(this);
         }
     }
 

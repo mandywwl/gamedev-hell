@@ -1528,7 +1528,6 @@ GameObject:
   - component: {fileID: 507950166}
   - component: {fileID: 507950168}
   - component: {fileID: 507950169}
-  - component: {fileID: 507950170}
   m_Layer: 0
   m_Name: BattleManager
   m_TagString: Untagged
@@ -1688,22 +1687,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &507950170
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 507950165}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce56cf65098d8aa4087e751a6fd487e9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  inventoryPanel: {fileID: 0}
-  slotsContainer: {fileID: 0}
-  slotPrefab: {fileID: 0}
-  initialSlotCount: 8
 --- !u!1 &529005844
 GameObject:
   m_ObjectHideFlags: 0
@@ -2684,8 +2667,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 90e2219a1f38c9d4285d47a069484fb8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   backgroundCanvas: {fileID: 1570008067}
   streetSprite: {fileID: 5334427460130646669, guid: d09c840dd2fc24d4a968a733f51be550, type: 3}
   storeSprite: {fileID: 4665972043560588713, guid: a41c5d6f7327a4de2a697c7ce3f68966, type: 3}

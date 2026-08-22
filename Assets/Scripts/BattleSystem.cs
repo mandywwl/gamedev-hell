@@ -67,7 +67,10 @@ public class BattleSystem : MonoBehaviour
     {
         //load player
         playerGO = Instantiate(playerPrefab, playerBattleStation);
-        playerUnit = playerGO.GetComponent<PlayerStats>();
+        // Always drive combat off the canonical persistent stats singleton, not the
+        // freshly-instantiated clone's own PlayerStats component (which self-destroys
+        // as a duplicate once the singleton already exists - see PlayerStats.Awake()).
+        playerUnit = PlayerStats.Instance;
 
         //choose and load enemy
         if (encounterKind == EncounterKind.HumanoidEnemy)
