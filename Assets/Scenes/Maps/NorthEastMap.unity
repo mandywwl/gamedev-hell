@@ -3653,8 +3653,8 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3603557768499534742, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 938310132092196687, guid: 05cf988705d95f94eba923000325449e, type: 3}
+      value:
+      objectReference: {fileID: 0}
     - target: {fileID: 3603557768499534742, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: QuitGame
@@ -3701,8 +3701,8 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4849261211285666214, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 938310132092196687, guid: 05cf988705d95f94eba923000325449e, type: 3}
+      value:
+      objectReference: {fileID: 0}
     - target: {fileID: 4849261211285666214, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: OpenSettings
@@ -3881,8 +3881,8 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7865456170662984289, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 938310132092196687, guid: 05cf988705d95f94eba923000325449e, type: 3}
+      value:
+      objectReference: {fileID: 0}
     - target: {fileID: 7865456170662984289, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: CloseSettings
@@ -3897,8 +3897,8 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8565235453144436704, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 938310132092196687, guid: 05cf988705d95f94eba923000325449e, type: 3}
+      value:
+      objectReference: {fileID: 0}
     - target: {fileID: 8565235453144436704, guid: a127ac6cc1c074e47a24f7f37fe33692, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: ResumeGame
@@ -4958,7 +4958,6 @@ GameObject:
   - component: {fileID: 771851745}
   - component: {fileID: 771851748}
   - component: {fileID: 771851746}
-  - component: {fileID: 771851749}
   m_Layer: 0
   m_Name: EventManager
   m_TagString: Untagged
@@ -5092,20 +5091,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &771851749
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 771851744}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 145da27733c22f042bbf41d1b109e555, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pausePanel: {fileID: 2117163323}
-  settingsMenu: {fileID: 1157368005}
 --- !u!1001 &863014925
 PrefabInstance:
   m_ObjectHideFlags: 0
