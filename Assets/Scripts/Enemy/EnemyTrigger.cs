@@ -25,11 +25,17 @@ public class BossEncounter : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (triggered) return;
         if (!other.CompareTag("Player")) return;
 
         Debug.Log("Entered boss trigger!");
+        StartCombat(other.transform.position);
+    }
 
+    // Shared entry point for anything that spots the player - the trigger collider above
+    // (touch) and EnemyPatrol's vision check (seen while patrolling) both funnel here.
+    public void StartCombat(Vector3 playerPosition)
+    {
+        if (triggered) return;
         triggered = true;
 
         BattleTransfer.enemyId = uniqueEnemyId;
@@ -46,9 +52,9 @@ public class BossEncounter : MonoBehaviour
         else if (bossIndex == 0)
         {
             BattleTransfer.encounterKind = EncounterKind.HumanoidEnemy;
-        }     
+        }
         BattleTransfer.returnSceneName = SceneManager.GetActiveScene().name;
-        BattleTransfer.returnPosition = other.transform.position;
+        BattleTransfer.returnPosition = playerPosition;
 
         SceneManager.LoadScene(combatSceneName);
     }
