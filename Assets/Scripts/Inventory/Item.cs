@@ -55,18 +55,44 @@ public class Item : ScriptableObject
     public float minStatModifier = 0.8f;
     public float maxStatModifier = 1.3f;
 
+    [SerializeField, HideInInspector] private ItemType lastAppliedType;
+
     void OnEnable()
     {
         // Apply default templates when the asset is created/loaded
         if (string.IsNullOrEmpty(itemName))
         {
             ApplyDefaultTemplate();
+            lastAppliedType = type;
         }
     }
 
-    // Apply realistic defaults for each weapon/item type
-    private void ApplyDefaultTemplate()
+    // Re-apply the template whenever `type` is changed in the Inspector, so picking a new
+    // type from the dropdown is enough to get that type's name/stats - OnEnable's empty-name
+    // check only catches the very first assignment, not later changes.
+    void OnValidate()
     {
+        if (type != lastAppliedType)
+        {
+            ApplyDefaultTemplate();
+            lastAppliedType = type;
+        }
+    }
+
+    [ContextMenu("Apply Default Template")]
+    private void ApplyDefaultTemplateFromMenu()
+    {
+        ApplyDefaultTemplate();
+        lastAppliedType = type;
+    }
+
+    // Apply realistic defaults for each weapon/item type
+    public void ApplyDefaultTemplate()
+    {
+        // id is derived from type so every item gets a unique id automatically - the
+        // inventory stacks/matches items by id, so two items sharing one id get merged.
+        id = (int)type;
+
         // Set basic info based on type
         itemName = type.ToString().Replace("_", " ");
 
@@ -89,6 +115,7 @@ public class Item : ScriptableObject
                 weight = 4f;
                 sellPrice = 750;
                 buyPrice = 1500;
+                description = "A reliable assault rifle chambered in 5.56x45mm NATO.";
                 break;
 
             case ItemType.FN_SCAR_MK17:
@@ -102,6 +129,7 @@ public class Item : ScriptableObject
                 buyPrice = 2250;
                 rarity = ItemRarity.ExpeditionGrade;
                 maxPerRun = 2;
+                description = "A hard-hitting battle rifle chambered in 7.62x51mm NATO.";
                 break;
 
             case ItemType.M16:
@@ -113,6 +141,7 @@ public class Item : ScriptableObject
                 weight = 3.8f;
                 sellPrice = 700;
                 buyPrice = 1400;
+                description = "A lightweight assault rifle with a high rate of fire.";
                 break;
 
             case ItemType.G36_HK:
@@ -125,6 +154,7 @@ public class Item : ScriptableObject
                 sellPrice = 800;
                 buyPrice = 1600;
                 rarity = ItemRarity.Standard;
+                description = "A rugged assault rifle favored for its reliability.";
                 break;
 
             case ItemType.F1_Famas:
@@ -136,6 +166,7 @@ public class Item : ScriptableObject
                 weight = 3.5f;
                 sellPrice = 650;
                 buyPrice = 1300;
+                description = "A bullpup assault rifle with a blistering fire rate.";
                 break;
 
             // === BOW WEAPONS ===
@@ -149,6 +180,7 @@ public class Item : ScriptableObject
                 sellPrice = 625;
                 buyPrice = 1250;
                 rarity = ItemRarity.Standard;
+                description = "A modern compound bow. Silent, but slow to reload.";
                 break;
 
             case ItemType.FlatBow:
@@ -160,6 +192,7 @@ public class Item : ScriptableObject
                 weight = 2.5f;
                 sellPrice = 500;
                 buyPrice = 1000;
+                description = "A simple flatbow. Easy to make, easy to use.";
                 break;
 
             case ItemType.CompoundCrossbow:
@@ -172,6 +205,7 @@ public class Item : ScriptableObject
                 sellPrice = 875;
                 buyPrice = 1750;
                 rarity = ItemRarity.Standard;
+                description = "A compound crossbow with serious stopping power.";
                 break;
 
             case ItemType.PistolCrossbow:
@@ -183,6 +217,7 @@ public class Item : ScriptableObject
                 weight = 2f;
                 sellPrice = 550;
                 buyPrice = 1100;
+                description = "A compact crossbow, easy to carry but weak.";
                 break;
 
             // === MELEE WEAPONS ===
@@ -195,6 +230,7 @@ public class Item : ScriptableObject
                 weight = 5f;
                 sellPrice = 1000;
                 buyPrice = 2000;
+                description = "A heavy fire axe. Slow but devastating.";
                 break;
 
             case ItemType.Crowbar:
@@ -206,6 +242,7 @@ public class Item : ScriptableObject
                 weight = 2f;
                 sellPrice = 625;
                 buyPrice = 1250;
+                description = "A trusty crowbar. Doubles as a lockpick in a pinch.";
                 break;
 
             case ItemType.Sledgehammer:
@@ -218,6 +255,7 @@ public class Item : ScriptableObject
                 sellPrice = 1250;
                 buyPrice = 2500;
                 rarity = ItemRarity.Standard;
+                description = "A massive sledgehammer. Crushes anything it hits.";
                 break;
 
             case ItemType.Spiked_Baseball_Bat:
@@ -229,6 +267,7 @@ public class Item : ScriptableObject
                 weight = 3f;
                 sellPrice = 750;
                 buyPrice = 1500;
+                description = "A baseball bat wrapped in rusty spikes.";
                 break;
 
             // === AMMUNITION ===
@@ -238,6 +277,7 @@ public class Item : ScriptableObject
                 sellPrice = 1;
                 buyPrice = 3;
                 rarity = ItemRarity.Standard;
+                description = "Standard 5.56x45mm NATO rounds.";
                 break;
 
             case ItemType.Ammo_762x51_NATO:
@@ -246,6 +286,7 @@ public class Item : ScriptableObject
                 sellPrice = 2;
                 buyPrice = 4;
                 rarity = ItemRarity.Standard;
+                description = "Heavy 7.62x51mm NATO rounds.";
                 break;
 
             case ItemType.Arrows:
@@ -254,6 +295,7 @@ public class Item : ScriptableObject
                 sellPrice = 1;
                 buyPrice = 2;
                 rarity = ItemRarity.Standard;
+                description = "Arrows for bow-type weapons.";
                 break;
 
             case ItemType.Crossbow_Bolts:
@@ -262,6 +304,7 @@ public class Item : ScriptableObject
                 sellPrice = 2;
                 buyPrice = 3;
                 rarity = ItemRarity.Standard;
+                description = "Bolts for crossbow-type weapons.";
                 break;
 
             // === ARMOR ===
@@ -270,6 +313,7 @@ public class Item : ScriptableObject
                 weight = 2f;
                 sellPrice = 100;
                 buyPrice = 200;
+                description = "Basic survivor gear. Better than nothing.";
                 break;
 
             case ItemType.BruiserJacket:
@@ -278,6 +322,7 @@ public class Item : ScriptableObject
                 sellPrice = 240;
                 buyPrice = 480;
                 rarity = ItemRarity.Standard;
+                description = "A reinforced jacket built to take a beating.";
                 break;
 
             case ItemType.AnomalyHoodie:
@@ -286,6 +331,7 @@ public class Item : ScriptableObject
                 sellPrice = 160;
                 buyPrice = 320;
                 rarity = ItemRarity.Standard;
+                description = "A hoodie treated to resist anomalous exposure.";
                 break;
 
             case ItemType.DreadedWearSuit:
@@ -294,6 +340,7 @@ public class Item : ScriptableObject
                 sellPrice = 300;
                 buyPrice = 600;
                 rarity = ItemRarity.ExpeditionGrade;
+                description = "A heavily armored suit built for the worst of it.";
                 break;
 
             // === CONSUMABLES ===
@@ -306,6 +353,7 @@ public class Item : ScriptableObject
                 weight = 0.2f;
                 sellPrice = 8;
                 buyPrice = 25;
+                description = "Basic first aid. Restores 25 HP.";
                 break;
 
             case ItemType.MedicalSerum:
@@ -320,6 +368,7 @@ public class Item : ScriptableObject
                 isUnique = true;
                 maxPerRun = 5;
                 rarity = ItemRarity.ExpeditionGrade;
+                description = "A potent medical serum. Restores 75 HP.";
                 break;
 
             case ItemType.SanityPills:
@@ -331,6 +380,7 @@ public class Item : ScriptableObject
                 weight = 0.1f;
                 sellPrice = 16;
                 buyPrice = 50;
+                description = "Calms the nerves. Restores 50 sanity.";
                 break;
 
             case ItemType.AnomalyPills:
@@ -346,6 +396,19 @@ public class Item : ScriptableObject
                 isUnique = true;
                 maxPerRun = 3;
                 rarity = ItemRarity.ExpeditionGrade;
+                description = "Experimental pills that steady both body and mind. Restores 10 HP and 25 sanity.";
+                break;
+
+            case ItemType.Candy:
+                isConsumable = true;
+                hpRestore = 10;
+                sanityRestore = 0;
+                healingAmount = 10;
+                maxStackSize = 20;
+                weight = 0.05f;
+                sellPrice = 3;
+                buyPrice = 10;
+                description = "A sugary snack. Restores 10 HP.";
                 break;
 
             // === KEY ITEMS ===
@@ -356,6 +419,7 @@ public class Item : ScriptableObject
                 isUnique = true;
                 maxPerRun = 1;
                 rarity = ItemRarity.Standard;
+                description = "Grants access to restricted areas.";
                 break;
 
             case ItemType.Map:
@@ -364,14 +428,72 @@ public class Item : ScriptableObject
                 buyPrice = 0;
                 maxPerRun = 2;
                 rarity = ItemRarity.Standard;
+                description = "A map of the surrounding area.";
                 break;
 
+            case ItemType.Key:
+                weight = 0.05f;
+                sellPrice = 0;
+                buyPrice = 0;
+                isUnique = true;
+                maxPerRun = 1;
+                rarity = ItemRarity.Standard;
+                description = "Opens a specific lock somewhere nearby.";
+                break;
+
+            case ItemType.Passport:
+                weight = 0.05f;
+                sellPrice = 0;
+                buyPrice = 0;
+                isUnique = true;
+                maxPerRun = 1;
+                rarity = ItemRarity.Standard;
+                description = "An old passport. Might prove useful for identification.";
+                break;
+
+            case ItemType.ID_Card:
+                weight = 0.05f;
+                sellPrice = 0;
+                buyPrice = 0;
+                isUnique = true;
+                maxPerRun = 1;
+                rarity = ItemRarity.Standard;
+                description = "An identification card belonging to someone else.";
+                break;
+
+            // === LORE & CRAFTING ===
             case ItemType.ExpeditionLog:
                 weight = 0.1f;
                 sellPrice = 0;
                 buyPrice = 0;
                 maxPerRun = 3;
                 rarity = ItemRarity.Standard;
+                description = "A logbook detailing a previous expedition.";
+                break;
+
+            case ItemType.AbandonedChecklist:
+                weight = 0.05f;
+                sellPrice = 0;
+                buyPrice = 0;
+                maxPerRun = 2;
+                rarity = ItemRarity.Standard;
+                description = "A checklist left behind by whoever was here before.";
+                break;
+
+            case ItemType.CraftingMaterial:
+                maxStackSize = 50;
+                weight = 0.3f;
+                sellPrice = 2;
+                buyPrice = 6;
+                rarity = ItemRarity.Standard;
+                description = "Raw material used for crafting.";
+                break;
+
+            case ItemType.Misc:
+                weight = 0.5f;
+                sellPrice = 1;
+                buyPrice = 2;
+                description = "An unidentified item.";
                 break;
 
             // === DEFAULT ===

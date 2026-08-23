@@ -45,8 +45,12 @@ public class ChestInteraction : MonoBehaviour
             animator.SetBool("IsOpen", true);
         }
 
-        // give exactly 1 medkit
-        if (LootSystem.Instance != null) LootSystem.Instance.GiveMedkitToPlayer(1);
-        else Debug.LogWarning("LootSystem not found in scene — cannot give medkit.");
+        // give a random item from the loot table and show what the player got
+        if (LootSystem.Instance != null)
+        {
+            var (item, quantity) = LootSystem.Instance.GiveRandomLoot();
+            if (LootPopupUI.Instance != null) LootPopupUI.Instance.ShowLoot(item, quantity);
+        }
+        else Debug.LogWarning("LootSystem not found in scene — cannot give loot.");
     }
 }

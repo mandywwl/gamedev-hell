@@ -141,7 +141,13 @@ public class InventoryUIManager : MonoBehaviour
         if (InventorySystem.Instance == null) return;
 
         var stack = InventorySystem.Instance.GetSlot(occupiedSlots[selectedListIndex]);
-        if (stack == null || stack.IsEmpty()) return;
+        if (stack == null) return;
+
+        if (stack.IsEmpty())
+        {
+            ShowResultPopup($"You don't have any {stack.item.itemName} left.");
+            return;
+        }
 
         isConfirmOpen = true;
         confirmYesSelected = true;
@@ -552,7 +558,7 @@ public class InventoryUIManager : MonoBehaviour
         }
 
         var stack = InventorySystem.Instance.GetSlot(occupiedSlots[selectedListIndex]);
-        if (stack == null || stack.IsEmpty())
+        if (stack == null)
         {
             descriptionText.text = string.Empty;
             return;

@@ -12,6 +12,7 @@ public class InventorySystem : MonoBehaviour
 
     [Header("Starting Items")]
     public List<Item> startingItems = new List<Item>();
+    public int startingItemQuantity = 2;
 
     // Dictionary for organizing items by category (efficient lookup and filtering)
     private Dictionary<ItemCategory, List<ItemStack>> itemsByCategory;
@@ -66,53 +67,36 @@ public class InventorySystem : MonoBehaviour
         // Seed the inventory with any designer-assigned starting items
         foreach (var startItem in startingItems)
         {
-            if (startItem != null) AddItem(startItem, 1);
+            if (startItem != null) AddItem(startItem, startingItemQuantity);
         }
 
-        // If nothing was configured in the Inspector, give the player a few starter
-        // items so there's something to test the inventory/use-item flow with.
+        // If nothing was configured in the Inspector, give the player the same starting
+        // quantity of each known consumable so there's something to test with.
         if (startingItems.Count == 0)
         {
-            AddItem(CreateDefaultBandages(), 3);
-            AddItem(CreateDefaultCandy(), 4);
+            foreach (var type in DefaultStartingConsumables)
+                AddItem(CreateDefaultItem(type), startingItemQuantity);
         }
     }
 
-    private Item CreateDefaultBandages()
+    private static readonly ItemType[] DefaultStartingConsumables =
     {
-        var item = ScriptableObject.CreateInstance<Item>();
-        item.id = 1;
-        item.itemName = "Bandages";
-        item.description = "Restores 25 HP.";
-        item.category = ItemCategory.Consumables;
-        item.type = ItemType.Bandages;
-        item.isConsumable = true;
-        item.hasDurability = false;
-        item.healingAmount = 25f;
-        item.hpRestore = 25;
-        item.maxStackSize = 20;
-        item.weight = 0.2f;
-        item.sellPrice = 8;
-        item.buyPrice = 25;
-        return item;
-    }
+        ItemType.Bandages,
+        ItemType.Candy,
+        ItemType.MedicalSerum,
+        ItemType.SanityPills,
+        ItemType.AnomalyPills,
+    };
 
-    private Item CreateDefaultCandy()
+    // Builds a runtime item via the same template Item assets use, so a runtime-seeded
+    // starting item and an asset of the same type end up with the same id and stack together
+    // instead of silently sitting in separate slots.
+    private Item CreateDefaultItem(ItemType type)
     {
         var item = ScriptableObject.CreateInstance<Item>();
-        item.id = 2;
-        item.itemName = "Candy";
-        item.description = "A sugary snack. Restores 10 HP.";
         item.category = ItemCategory.Consumables;
-        item.type = ItemType.Candy;
-        item.isConsumable = true;
-        item.hasDurability = false;
-        item.healingAmount = 10f;
-        item.hpRestore = 10;
-        item.maxStackSize = 20;
-        item.weight = 0.05f;
-        item.sellPrice = 3;
-        item.buyPrice = 10;
+        item.type = type;
+        item.ApplyDefaultTemplate();
         return item;
     }
 
@@ -219,10 +203,9 @@ public class InventorySystem : MonoBehaviour
                 slot.RemoveItems(toRemove);
                 remaining -= toRemove;
 
-                if (slot.IsEmpty())
-                    inventorySlots[i] = null;
-
-                OnSlotChanged?.Invoke(i, inventorySlots[i]);
+                // The slot stays (at quantity 0) instead of being cleared, so an item the
+                // player has ever held keeps showing in the list - just unusable until restocked.
+                OnSlotChanged?.Invoke(i, slot);
             }
         }
 
@@ -235,13 +218,14 @@ public class InventorySystem : MonoBehaviour
         return inventorySlots[slotIndex];
     }
 
-    // Indices of every non-empty slot, in slot order - what the list-style UI iterates over.
+    // Indices of every slot that has ever held an item, in slot order - what the list-style
+    // UI iterates over. Includes slots at quantity 0 so known items don't vanish from the list.
     public List<int> GetOccupiedSlotIndices()
     {
         var result = new List<int>();
         for (int i = 0; i < inventorySlots.Count; i++)
         {
-            if (inventorySlots[i] != null && !inventorySlots[i].IsEmpty())
+            if (inventorySlots[i] != null)
                 result.Add(i);
         }
         return result;

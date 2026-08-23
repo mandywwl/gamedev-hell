@@ -24,7 +24,9 @@ public class InventoryListRowUI : MonoBehaviour, IPointerClickHandler
 
     public void SetItem(ItemStack stack)
     {
-        if (stack == null || stack.IsEmpty())
+        // Only a truly unused slot (null) blanks the row - a stack at quantity 0 still shows,
+        // just with "0", since the player has held this item before and may find more later.
+        if (stack == null)
         {
             nameText.text = string.Empty;
             quantityText.text = string.Empty;
