@@ -50,6 +50,13 @@ public class InventoryUIManager : MonoBehaviour
     private bool isOpen = false;
     private bool isConfirmOpen = false;
 
+    // Set while opened via OpenForCombat - lets a battle turn wait for the outcome of one
+    // item use instead of the normal free-browsing exploration flow.
+    private bool isCombatMode = false;
+    private Action<bool, string> combatResultCallback;
+    private bool lastUseSucceeded;
+    private string lastUseMessage;
+
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -82,8 +89,9 @@ public class InventoryUIManager : MonoBehaviour
     {
         if (!isOpen) return;
 
-        // The inventory is exploration-only - close immediately if combat starts.
-        if (GameState.I != null && GameState.I.CurrentMode == GameState.PlayMode.Combat)
+        // The inventory is exploration-only outside of OpenForCombat - close immediately if
+        // combat starts while it's open some other way.
+        if (!isCombatMode && GameState.I != null && GameState.I.CurrentMode == GameState.PlayMode.Combat)
         {
             CloseInventory();
             return;
@@ -117,7 +125,10 @@ public class InventoryUIManager : MonoBehaviour
         }
 
         // Escape while just browsing the list (no sub-dialog open) is handled by
-        // PauseManager, which closes the inventory - see PauseManager.Update().
+        // PauseManager, which closes the inventory - see PauseManager.Update(). Don't also
+        // handle it here: PauseManager checks IsOpen in the same frame, so a second handler
+        // here would close the inventory first and cause PauseManager to then treat the
+        // Escape press as "inventory wasn't open" and open the Pause menu on top of it.
 
         if (occupiedSlots.Count > 0)
         {
@@ -175,6 +186,9 @@ public class InventoryUIManager : MonoBehaviour
         int inventorySlotIndex = occupiedSlots[selectedListIndex];
         var result = InventorySystem.Instance.UseItem(inventorySlotIndex);
         Refresh();
+
+        lastUseSucceeded = result.success;
+        lastUseMessage = result.message;
         ShowResultPopup(result.message);
     }
 
@@ -195,6 +209,18 @@ public class InventoryUIManager : MonoBehaviour
     {
         isResultOpen = false;
         resultDialog.SetActive(false);
+
+        // A successful use during combat ends the browsing session here - failed attempts
+        // (out of item, can't use directly, etc.) just return to the list to try something else.
+        if (isCombatMode && lastUseSucceeded)
+        {
+            var callback = combatResultCallback;
+            var message = lastUseMessage;
+            isCombatMode = false;
+            combatResultCallback = null;
+            CloseInventory();
+            callback?.Invoke(true, message);
+        }
     }
 
     // --- UI construction ---
@@ -213,6 +239,22 @@ public class InventoryUIManager : MonoBehaviour
         scaler.matchWidthOrHeight = 0.5f;
 
         canvasGO.AddComponent<GraphicRaycaster>();
+
+        // --- Full-screen backdrop: blocks clicks to whatever's behind (e.g. the combat
+        // Attack/Item/Run buttons) while the inventory is open, and closing on a click
+        // outside the panel gives mouse users the same "back out" affordance Escape gives
+        // keyboard users.
+        var backdropGO = new GameObject("Backdrop", typeof(RectTransform));
+        backdropGO.transform.SetParent(canvasGO.transform, false);
+        var backdropRect = backdropGO.GetComponent<RectTransform>();
+        backdropRect.anchorMin = Vector2.zero;
+        backdropRect.anchorMax = Vector2.one;
+        backdropRect.offsetMin = Vector2.zero;
+        backdropRect.offsetMax = Vector2.zero;
+        backdropGO.AddComponent<Image>().color = new Color(0, 0, 0, 0.01f); // near-invisible but still a raycast target
+        var backdropButton = backdropGO.AddComponent<Button>();
+        backdropButton.transition = Selectable.Transition.None;
+        backdropButton.onClick.AddListener(CloseInventory);
 
         // --- Root panel ---
         var panelGO = new GameObject("Panel", typeof(RectTransform));
@@ -602,6 +644,28 @@ public class InventoryUIManager : MonoBehaviour
         Refresh();
     }
 
+    // Opens the inventory during a combat turn. onResult fires exactly once: (true, message)
+    // when an item was successfully used, or (false, null) if the player backed out without
+    // using anything - the caller (BattleSystem) uses this to decide whether the turn passes.
+    public void OpenForCombat(Action<bool, string> onResult)
+    {
+        if (inventoryRoot == null) return;
+
+        isCombatMode = true;
+        combatResultCallback = onResult;
+        lastUseSucceeded = false; // reset so a stale result from a previous turn can't leak in
+
+        isOpen = true;
+        isConfirmOpen = false;
+        isResultOpen = false;
+        if (confirmDialog != null) confirmDialog.SetActive(false);
+        if (resultDialog != null) resultDialog.SetActive(false);
+        inventoryRoot.SetActive(true);
+        Time.timeScale = 0f; // pause while the player is deciding, same as exploration
+        selectedListIndex = 0;
+        Refresh();
+    }
+
     public void CloseInventory()
     {
         if (inventoryRoot == null) return;
@@ -612,6 +676,16 @@ public class InventoryUIManager : MonoBehaviour
         if (resultDialog != null) resultDialog.SetActive(false);
         inventoryRoot.SetActive(false);
         Time.timeScale = 1f;
+
+        // Only reaches here still combat-mode if the player backed out without using an item -
+        // a successful use already cleared isCombatMode itself in CloseResultPopup before calling this.
+        if (isCombatMode)
+        {
+            isCombatMode = false;
+            var callback = combatResultCallback;
+            combatResultCallback = null;
+            callback?.Invoke(false, null);
+        }
     }
 
     // Clicking a row: first click highlights it, clicking the already-highlighted row opens the use prompt.

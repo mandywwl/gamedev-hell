@@ -124,9 +124,11 @@ public class EnemyPatrol : MonoBehaviour
         float angle = Vector2.Angle(facingDirection, toPlayer);
         if (angle > visionAngle * 0.5f) return false;
 
-        // A wall/obstacle between the enemy and the player blocks the sighting.
+        // A wall/obstacle between the enemy and the player blocks the sighting - but a hit on
+        // the player themselves (the ray's own target, if their layer is in obstructionMask
+        // too) must not count as an obstruction, or vision would never succeed.
         RaycastHit2D hit = Physics2D.Raycast(transform.position, toPlayer.normalized, distance, obstructionMask);
-        if (hit.collider != null) return false;
+        if (hit.collider != null && hit.transform != player) return false;
 
         return true;
     }

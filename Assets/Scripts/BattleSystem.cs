@@ -276,16 +276,39 @@ public class BattleSystem : MonoBehaviour
             return;
         }
 
+        // InventoryUIManager is a per-scene singleton that lives on the persistent
+        // Systems (DDOL) object carried over from the map scene - not something to wire up
+        // per-scene in the Inspector (a Combat-local copy would just self-destruct as a
+        // duplicate the moment the scene loads).
+        if (InventoryUIManager.Instance == null)
+        {
+            Debug.LogWarning("BattleSystem: No InventoryUIManager in scene - cannot use items in combat.");
+            return;
+        }
+
         state = BattleState.BUSY;
-        StartCoroutine(PlayerUseItem());
+        InventoryUIManager.Instance.OpenForCombat(OnCombatItemResult);
     }
 
-    IEnumerator PlayerUseItem()
+    // Callback from InventoryUIManager.OpenForCombat: itemUsed is false if the player backed
+    // out without using anything, in which case it's still their turn.
+    private void OnCombatItemResult(bool itemUsed, string message)
     {
-        //TODO: open inventory UI and let player choose an item
-        playerUnit.Heal(20f);
-        playerHUD.SetHP(playerUnit.currentHP);
-        dialogueText.text = "Used a medkit! +" + 20 + " HP";
+        if (!itemUsed)
+        {
+            state = BattleState.PLAYERTURN;
+            return;
+        }
+
+        dialogueText.text = message;
+        StartCoroutine(FinishItemTurn());
+    }
+
+    IEnumerator FinishItemTurn()
+    {
+        // GetCurrentHP() (not the raw currentHP field) since Heal() only updates combatHP
+        // while a battle is in progress.
+        playerHUD.SetHP(playerUnit.GetCurrentHP());
 
         yield return new WaitForSeconds(2f);
 
