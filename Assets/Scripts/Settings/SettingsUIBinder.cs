@@ -28,7 +28,7 @@ public class SettingsUIBinder : MonoBehaviour
     void Awake()
     {
         // Initialize UI from saved prefs (without firing callbacks)
-        if (brightness) brightness.SetValueWithoutNotify(PlayerPrefs.GetFloat("brightness", 0.5f));
+        if (brightness) brightness.SetValueWithoutNotify(PlayerPrefs.GetFloat("brightness", -2f));
         if (sound) sound.SetValueWithoutNotify(PlayerPrefs.GetFloat("sound", 1.0f));
         if (fullscreen) fullscreen.SetIsOnWithoutNotify(GetSavedFullscreen());
     }

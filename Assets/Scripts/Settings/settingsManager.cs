@@ -78,8 +78,8 @@ public class settingsManager : MonoBehaviour
         float savedVolume = PlayerPrefs.GetFloat("sound", 1.0f);
         ChangeSound(savedVolume);
 
-        // Brightness
-        float savedBrightness = PlayerPrefs.GetFloat("brightness", 0.5f);
+        // Brightness - defaults to the slider's minimum (-2, see SettingsMenu.prefab) for the darkest baseline
+        float savedBrightness = PlayerPrefs.GetFloat("brightness", -2f);
         ChangeBrightness(savedBrightness);
 
         // Fullscreen + Resolution
