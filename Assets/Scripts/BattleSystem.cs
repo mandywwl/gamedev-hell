@@ -245,7 +245,9 @@ public class BattleSystem : MonoBehaviour
         }
 
         // Load previous map scene
-        SceneManager.LoadScene(sceneToReturn);
+        //SceneManager.LoadScene(sceneToReturn);
+
+        SceneTransition.I.ReturnFromBattle(sceneToReturn);
     }
 
     void PlayerTurn()
