@@ -160,7 +160,7 @@ public class PauseManager : MonoBehaviour
 
     public void QuitGame()
     {
-        Debug.Log("Quitting Game..."); // Good for testing in the editor
+        Debug.Log("Quitting Game...");
         Application.Quit();
     }
 

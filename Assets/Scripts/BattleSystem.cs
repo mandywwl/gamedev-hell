@@ -51,6 +51,8 @@ public class BattleSystem : MonoBehaviour
 
     void Start()
     {
+        Debug.Log("[DIAG] BattleSystem.Start() called");
+
         if (BattleTransfer.encounterKind != EncounterKind.HumanoidEnemy)
         {
             encounterKind = BattleTransfer.encounterKind;
@@ -65,9 +67,14 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator SetupBattle()
     {
+        Debug.Log("[DIAG] SetupBattle() started, encounterKind=" + encounterKind);
+        Debug.Log("[DIAG] playerPrefab=" + playerPrefab + " playerBattleStation=" + playerBattleStation);
+
         //load player
         playerGO = Instantiate(playerPrefab, playerBattleStation);
+        Debug.Log("[DIAG] playerGO instantiated: " + playerGO + " at " + playerGO.transform.position + " active=" + playerGO.activeInHierarchy);
         playerUnit = playerGO.GetComponent<PlayerStats>();
+        Debug.Log("[DIAG] playerUnit=" + playerUnit);
 
         //choose and load enemy
         if (encounterKind == EncounterKind.HumanoidEnemy)
@@ -85,8 +92,11 @@ public class BattleSystem : MonoBehaviour
             chosenEnemyPrefab = bossPrefab;
             backgroundManager.SetBackgroundToStore();
         }
+        Debug.Log("[DIAG] chosenEnemyPrefab=" + chosenEnemyPrefab + " enemyBattleStation=" + enemyBattleStation);
         enemyGO = Instantiate(chosenEnemyPrefab, enemyBattleStation);
+        Debug.Log("[DIAG] enemyGO instantiated: " + enemyGO + " at " + enemyGO.transform.position + " active=" + enemyGO.activeInHierarchy);
         enemyUnit = enemyGO.GetComponent<Unit>();
+        Debug.Log("[DIAG] enemyUnit=" + enemyUnit);
 
         dialogueText.text = "Encountered " + enemyUnit.unitName;
 
