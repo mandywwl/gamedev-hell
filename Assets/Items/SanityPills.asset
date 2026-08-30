@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 836118b51e2577f419d02238f95732a9, type: 3}
+  m_Name: SanityPills
+  m_EditorClassIdentifier: 
+  id: 23
+  itemName: SanityPills
+  description: 
+  category: 2
+  type: 23
+  maxStackSize: 15
+  sellPrice: 16
+  buyPrice: 50
+  isConsumable: 1
+  attackPower: 30
+  defensePower: 0
+  hpRestore: 0
+  sanityRestore: 50
+  icon: {fileID: 0}
+  hasDurability: 1
+  maxDurability: 100
+  currentDurability: 100
+  requiredAmmoType: 13
+  magazineSize: 30
+  fireRate: 3.5
+  range: 50
+  healingAmount: 0
+  sanityAmount: 50
+  isInstantUse: 1
+  rarity: 0
+  weight: 0.1
+  isUnique: 0
+  maxPerRun: -1
+  canBeModified: 1
+  minStatModifier: 0.8
+  maxStatModifier: 1.3
+  lastAppliedType: 0

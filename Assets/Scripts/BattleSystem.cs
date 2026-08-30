@@ -51,8 +51,6 @@ public class BattleSystem : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("[DIAG] BattleSystem.Start() called");
-
         if (BattleTransfer.encounterKind != EncounterKind.HumanoidEnemy)
         {
             encounterKind = BattleTransfer.encounterKind;
@@ -67,14 +65,12 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator SetupBattle()
     {
-        Debug.Log("[DIAG] SetupBattle() started, encounterKind=" + encounterKind);
-        Debug.Log("[DIAG] playerPrefab=" + playerPrefab + " playerBattleStation=" + playerBattleStation);
-
         //load player
         playerGO = Instantiate(playerPrefab, playerBattleStation);
-        Debug.Log("[DIAG] playerGO instantiated: " + playerGO + " at " + playerGO.transform.position + " active=" + playerGO.activeInHierarchy);
-        playerUnit = playerGO.GetComponent<PlayerStats>();
-        Debug.Log("[DIAG] playerUnit=" + playerUnit);
+        // Always drive combat off the canonical persistent stats singleton, not the
+        // freshly-instantiated clone's own PlayerStats component (which self-destroys
+        // as a duplicate once the singleton already exists - see PlayerStats.Awake()).
+        playerUnit = PlayerStats.Instance;
 
         //choose and load enemy
         if (encounterKind == EncounterKind.HumanoidEnemy)
@@ -92,11 +88,8 @@ public class BattleSystem : MonoBehaviour
             chosenEnemyPrefab = bossPrefab;
             backgroundManager.SetBackgroundToStore();
         }
-        Debug.Log("[DIAG] chosenEnemyPrefab=" + chosenEnemyPrefab + " enemyBattleStation=" + enemyBattleStation);
         enemyGO = Instantiate(chosenEnemyPrefab, enemyBattleStation);
-        Debug.Log("[DIAG] enemyGO instantiated: " + enemyGO + " at " + enemyGO.transform.position + " active=" + enemyGO.activeInHierarchy);
         enemyUnit = enemyGO.GetComponent<Unit>();
-        Debug.Log("[DIAG] enemyUnit=" + enemyUnit);
 
         dialogueText.text = "Encountered " + enemyUnit.unitName;
 
@@ -283,16 +276,39 @@ public class BattleSystem : MonoBehaviour
             return;
         }
 
+        // InventoryUIManager is a per-scene singleton that lives on the persistent
+        // Systems (DDOL) object carried over from the map scene - not something to wire up
+        // per-scene in the Inspector (a Combat-local copy would just self-destruct as a
+        // duplicate the moment the scene loads).
+        if (InventoryUIManager.Instance == null)
+        {
+            Debug.LogWarning("BattleSystem: No InventoryUIManager in scene - cannot use items in combat.");
+            return;
+        }
+
         state = BattleState.BUSY;
-        StartCoroutine(PlayerUseItem());
+        InventoryUIManager.Instance.OpenForCombat(OnCombatItemResult);
     }
 
-    IEnumerator PlayerUseItem()
+    // Callback from InventoryUIManager.OpenForCombat: itemUsed is false if the player backed
+    // out without using anything, in which case it's still their turn.
+    private void OnCombatItemResult(bool itemUsed, string message)
     {
-        //TODO: open inventory UI and let player choose an item
-        playerUnit.Heal(20f);
-        playerHUD.SetHP(playerUnit.currentHP);
-        dialogueText.text = "Used a medkit! +" + 20 + " HP";
+        if (!itemUsed)
+        {
+            state = BattleState.PLAYERTURN;
+            return;
+        }
+
+        dialogueText.text = message;
+        StartCoroutine(FinishItemTurn());
+    }
+
+    IEnumerator FinishItemTurn()
+    {
+        // GetCurrentHP() (not the raw currentHP field) since Heal() only updates combatHP
+        // while a battle is in progress.
+        playerHUD.SetHP(playerUnit.GetCurrentHP());
 
         yield return new WaitForSeconds(2f);
 
