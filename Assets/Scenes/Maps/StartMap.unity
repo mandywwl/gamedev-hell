@@ -14115,6 +14115,7 @@ GameObject:
   - component: {fileID: 1092928919}
   - component: {fileID: 1092928921}
   - component: {fileID: 1092928920}
+  - component: {fileID: 1092928922}
   m_Layer: 0
   m_Name: Systems (DDOL)
   m_TagString: Untagged
@@ -14139,7 +14140,6 @@ Transform:
   - {fileID: 2077408752}
   - {fileID: 2088380363}
   - {fileID: 771851745}
-  - {fileID: 1427901147}
   - {fileID: 212519352}
   - {fileID: 279802702}
   m_Father: {fileID: 0}
@@ -14172,6 +14172,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   NextSpawnId: 
   CurrentMode: 0
+--- !u!114 &1092928922
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1092928918}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0157c94438c574f4eb1df514d8b751bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  config: {fileID: 11400000, guid: ef295a52245a73940a51095014f8e845, type: 2}
+  sanityCurrent: 100
 --- !u!1 &1107908289
 GameObject:
   m_ObjectHideFlags: 0
@@ -16022,50 +16036,6 @@ Transform:
   - {fileID: 1347198457}
   m_Father: {fileID: 260983914}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1427901146
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1427901147}
-  - component: {fileID: 1427901148}
-  m_Layer: 0
-  m_Name: SanityManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1427901147
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1427901146}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -7.49, y: -3.58, z: -10}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1092928919}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1427901148
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1427901146}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b426f915984c100419eaabba6bd3c706, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1433474915 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1409105312249524384, guid: 3ff4309c49ce87e41adc43d3fa0eda6a, type: 3}
@@ -18460,6 +18430,10 @@ PrefabInstance:
     - target: {fileID: 2204632177521974087, guid: 70a9695197f15644ab70acbc02eaa02e, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 5151808937203100042, guid: 70a9695197f15644ab70acbc02eaa02e, type: 3}
+      propertyPath: sanityCurrent
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 8121491688311298256, guid: 70a9695197f15644ab70acbc02eaa02e, type: 3}
       propertyPath: m_LocalPosition.x

@@ -28,6 +28,8 @@ public class PlayerStats : MonoBehaviour
     public System.Action<float, float> OnHPChanged; // current, max
     public System.Action<float> OnAttackPowerChanged;
     public System.Action<float> OnDefensePowerChanged;
+    public System.Action<float> OnDamageTaken; // actual damage applied (after defense reduction)
+    public System.Action<float, float> OnSanityChanged; // current, max (taken from SanityController)
 
     void Awake()
     {
@@ -58,6 +60,10 @@ public class PlayerStats : MonoBehaviour
         // Calculate initial equipment bonuses
         UpdateEquipmentBonuses();
 
+        // Forward sanity changes through PlayerStats so UI that reads stats from here
+        // synchronize (sanity itself is taken from SanityController).
+        if (SanityController.Instance != null)
+            SanityController.Instance.OnSanityChanged += OnSanityControllerChanged;
     }
 
     void OnDestroy()
@@ -66,6 +72,9 @@ public class PlayerStats : MonoBehaviour
         {
             InventorySystem.Instance.OnEquipmentChanged -= OnEquipmentChanged;
         }
+
+        if (SanityController.Instance != null)
+            SanityController.Instance.OnSanityChanged -= OnSanityControllerChanged;
     }
 
     private void InitializeStats()
@@ -95,7 +104,7 @@ public class PlayerStats : MonoBehaviour
     {
         if (isInCombat)
         {
-            currentHP = combatHP;
+            currentHP = combatHP;         
             isInCombat = false;
 
             // Trigger UI updates with final values
@@ -207,6 +216,7 @@ public class PlayerStats : MonoBehaviour
     public bool TakeDamage(float damage, bool isInCombat)
     {
         float actualDamage = Mathf.Max(1f, damage - GetTotalDefensePower()); // Minimum 1 damage
+        OnDamageTaken?.Invoke(actualDamage);
 
         if (isInCombat)
         {
@@ -252,12 +262,22 @@ public class PlayerStats : MonoBehaviour
         if (InventorySystem.Instance == null || !InventorySystem.Instance.HasItem(consumableItem, 1))
             return (false, $"You don't have any {consumableItem.itemName} left.");
 
-        if (consumableItem.healingAmount > 0f && GetCurrentHP() >= maxHP)
+        bool heals = consumableItem.healingAmount > 0f;
+        bool restoresSanity = consumableItem.sanityAmount > 0f;
+
+        // Reject a heal-only item at full health, and a sanity-only item at full sanity.
+        if (heals && GetCurrentHP() >= maxHP && !restoresSanity)
             return (false, $"Can't use {consumableItem.itemName} - already at max health.");
 
-        // Apply effects using float values from Item
-        if (consumableItem.healingAmount > 0f)
+        if (restoresSanity && !heals && SanityController.Instance != null
+            && SanityController.Instance.GetSanityCurrent() >= SanityController.Instance.GetSanityMax())
+            return (false, $"Can't use {consumableItem.itemName} - already at max sanity.");
+
+        // Apply effects such as health & sanity using float values from Item
+        if (heals)
             Heal(consumableItem.healingAmount);
+        if (restoresSanity && SanityController.Instance != null)
+            SanityController.Instance.RestoreSanity(consumableItem.sanityAmount);
 
         InventorySystem.Instance.RemoveItem(consumableItem, 1);
 
@@ -285,6 +305,39 @@ public class PlayerStats : MonoBehaviour
     public float GetHealthPercentage()
     {
         return GetCurrentHP() / maxHP;
+    }
+
+    #endregion
+
+    #region Sanity Integration
+
+    /* Sanity is owned by SanityController, PlayerStats re-exposes it here so UI has one
+    place to read every player stat instead of reaching into two separate singletons.*/
+    public float GetCurrentSanity()
+    {
+        return SanityController.Instance != null ? SanityController.Instance.GetSanityCurrent() : 0f;
+    }
+
+    public float GetMaxSanity()
+    {
+        return SanityController.Instance != null ? SanityController.Instance.GetSanityMax() : 0f;
+    }
+
+    public SanityState GetSanityState()
+    {
+        return SanityController.Instance != null ? SanityController.Instance.CurrentState : SanityState.Stable;
+    }
+
+    public Color GetSanityStateColor()
+    {
+        if (SanityController.Instance == null || SanityController.Instance.GetConfig() == null)
+            return Color.white;
+        return SanityController.Instance.GetConfig().GetStateColor(GetSanityState());
+    }
+
+    private void OnSanityControllerChanged(float current, float max)
+    {
+        OnSanityChanged?.Invoke(current, max);
     }
 
     #endregion

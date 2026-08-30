@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70b8e1131086ef24691a67406cd90681, type: 3}
+  m_Name: SanityConfig
+  m_EditorClassIdentifier: 
+  maxSanity: 100
+  stableMin: 76
+  shakenMin: 51
+  disturbedMin: 26
+  unstableMin: 1
+  stableColor: {r: 0.36, g: 0.83, b: 0.36, a: 1}
+  shakenColor: {r: 0.95, g: 0.77, b: 0.06, a: 1}
+  disturbedColor: {r: 0.98, g: 0.55, b: 0.1, a: 1}
+  unstableColor: {r: 0.91, g: 0.24, b: 0.16, a: 1}
+  breakdownColor: {r: 0.55, g: 0.05, b: 0.05, a: 1}
+  damageSanityLossPerHP: 0.3
+  minDamageSanityLoss: 3
+  maxDamageSanityLoss: 8
+  battleEndSanityLoss: 10
+  darknessDrainPerTick: 1
+  darknessDrainInterval: 3
+  safeZoneRecoveryPerTick: 2
+  safeZoneRecoveryInterval: 3
+  stateModifiers:
+  - aimInstability: 0
+    reloadMultiplier: 1
+    staminaDrain: 0
+    incomingCritVulnerability: 0
+    panicLockoutDuration: 0
+  - aimInstability: 0.15
+    reloadMultiplier: 1
+    staminaDrain: 2
+    incomingCritVulnerability: 0
+    panicLockoutDuration: 0
+  - aimInstability: 0.3
+    reloadMultiplier: 1.25
+    staminaDrain: 3
+    incomingCritVulnerability: 0
+    panicLockoutDuration: 0
+  - aimInstability: 0.5
+    reloadMultiplier: 1.5
+    staminaDrain: 5
+    incomingCritVulnerability: 0.25
+    panicLockoutDuration: 0
+  - aimInstability: 0.75
+    reloadMultiplier: 2
+    staminaDrain: 8
+    incomingCritVulnerability: 0.4
+    panicLockoutDuration: 1.5

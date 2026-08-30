@@ -113,6 +113,11 @@ public class BattleSystem : MonoBehaviour
 
     void EndBattle()
     {
+        /* Combat takes a mental toll: surviving a fight (win or flee) costs sanity.
+        Skipped on LOST since the player is dead and heading to the game-over screen. */
+        if (state != BattleState.LOST && SanityController.Instance != null)
+            SanityController.Instance.ApplyBattleEndSanityLoss();
+
         if (state == BattleState.WON)
         {
             dialogueText.text = "You won!";

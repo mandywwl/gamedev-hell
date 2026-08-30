@@ -32,6 +32,7 @@ public class InventoryUIManager : MonoBehaviour
     private RectTransform contentRoot;
     private TextMeshProUGUI emptyStateLabel;
     private TextMeshProUGUI healthText;
+    private TextMeshProUGUI sanityText;
     private TextMeshProUGUI descriptionText;
     private GameObject confirmDialog;
     private TextMeshProUGUI confirmMessageText;
@@ -285,6 +286,11 @@ public class InventoryUIManager : MonoBehaviour
         healthText = CreateText(panelGO.transform, "HealthText", TextAlignmentOptions.Center);
         healthText.fontSize = 22;
         healthText.gameObject.AddComponent<LayoutElement>().preferredHeight = 26;
+
+        // --- Sanity readout (sits under health; tints by current sanity state) ---
+        sanityText = CreateText(panelGO.transform, "SanityText", TextAlignmentOptions.Center);
+        sanityText.fontSize = 22;
+        sanityText.gameObject.AddComponent<LayoutElement>().preferredHeight = 26;
 
         // --- Header row (Items | Quantity) ---
         var headerGO = new GameObject("HeaderRow", typeof(RectTransform));
@@ -544,6 +550,7 @@ public class InventoryUIManager : MonoBehaviour
     public void Refresh()
     {
         UpdateHealthText();
+        UpdateSanityText();
 
         occupiedSlots.Clear();
         if (InventorySystem.Instance != null)
@@ -587,6 +594,24 @@ public class InventoryUIManager : MonoBehaviour
             healthText.text = $"Health: {PlayerStats.Instance.GetCurrentHP():F0} / {PlayerStats.Instance.maxHP:F0}";
         else
             healthText.text = string.Empty;
+    }
+
+    // Shows the current sanity alongside the state label, tinted by that state's color
+    // (mirrors the standalone SanityHUD, but built into the runtime inventory panel).
+    // Reads through PlayerStats so every stat in the panel comes from the same place.
+    private void UpdateSanityText()
+    {
+        if (sanityText == null) return;
+
+        PlayerStats stats = PlayerStats.Instance;
+        if (stats == null || stats.GetMaxSanity() <= 0f)
+        {
+            sanityText.text = string.Empty;
+            return;
+        }
+
+        sanityText.text = $"Sanity: {stats.GetCurrentSanity():F0} / {stats.GetMaxSanity():F0} - {stats.GetSanityState()}";
+        sanityText.color = stats.GetSanityStateColor();
     }
 
     private void UpdateDescriptionText()
