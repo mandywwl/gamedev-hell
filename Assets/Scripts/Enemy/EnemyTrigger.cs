@@ -56,7 +56,7 @@ public class BossEncounter : MonoBehaviour
         BattleTransfer.returnSceneName = SceneManager.GetActiveScene().name;
         BattleTransfer.returnPosition = playerPosition;
 
-        SceneManager.LoadScene(combatSceneName);
+        SceneTransition.I.LoadBattleScene(combatSceneName);
     }
 
     public static class BattleTransfer
