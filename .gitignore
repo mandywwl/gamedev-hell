@@ -10,6 +10,9 @@
 [Rr]ecordings/
 UIElementsSchema/
 
+# ---- Unity per-user package state ----
+/ProjectSettings/Packages/com.unity.connect.share/
+
 # Asset meta files etc
 /Assets/Recordings.meta
 /Assets_dst/Unity.VisualScripting.Generated/VisualScripting.Flow/UnitOptions.db
