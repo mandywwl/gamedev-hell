@@ -6087,8 +6087,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77c4545a9e6a01b4cb870a1afc14a3af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TargetSceneName: 
-  TargetSpawnId: 
+  TargetSceneName: SubwayEntrance
+  TargetSpawnId: fromStartUnderground
   ThisPortalId: toSubway_1
   player: {fileID: 2050034496}
 --- !u!1 &702355630
@@ -6308,8 +6308,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77c4545a9e6a01b4cb870a1afc14a3af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TargetSceneName: 
-  TargetSpawnId: 
+  TargetSceneName: SubwayEntrance
+  TargetSpawnId: fromStartUnderground
   ThisPortalId: toSubway_2
   player: {fileID: 2050034496}
 --- !u!1 &764708113
