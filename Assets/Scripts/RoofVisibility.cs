@@ -35,7 +35,12 @@ public class RoofVisibility : MonoBehaviour
 
     private void StartFade(float targetAlpha)
     {
-        if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
+        if (!isActiveAndEnabled)
+            return;
+
+        if (fadeCoroutine != null)
+            StopCoroutine(fadeCoroutine);
+
         fadeCoroutine = StartCoroutine(FadeTo(targetAlpha));
     }
 
@@ -72,5 +77,7 @@ public class RoofVisibility : MonoBehaviour
             c.a = targetAlpha;
             tilemap.color = c;
         }
+
+        fadeCoroutine = null;
     }
 }
