@@ -36,7 +36,15 @@ public class BossEncounter : MonoBehaviour
     public void StartCombat(Vector3 playerPosition)
     {
         if (triggered) return;
-        triggered = true;
+
+        // SceneTransition is a DontDestroyOnLoad singleton created by the first map scene;
+        // if it is missing (or already mid-transition) the load below is a no-op, so don't
+        // burn the encounter - leave it armed for the next time the player walks into it.
+        if (SceneTransition.I == null)
+        {
+            Debug.LogError("BossEncounter: SceneTransition singleton not found - cannot start combat.");
+            return;
+        }
 
         BattleTransfer.enemyId = uniqueEnemyId;
 
@@ -56,7 +64,8 @@ public class BossEncounter : MonoBehaviour
         BattleTransfer.returnSceneName = SceneManager.GetActiveScene().name;
         BattleTransfer.returnPosition = playerPosition;
 
-        SceneTransition.I.LoadBattleScene(combatSceneName);
+        // Only latch the encounter once the transition has actually been accepted.
+        triggered = SceneTransition.I.LoadBattleScene(combatSceneName);
     }
 
     public static class BattleTransfer

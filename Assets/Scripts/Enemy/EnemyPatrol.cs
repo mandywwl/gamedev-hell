@@ -50,8 +50,19 @@ public class EnemyPatrol : MonoBehaviour
     {
         if (player == null)
         {
-            var playerObj = GameObject.FindGameObjectWithTag("Player");
-            if (playerObj != null) player = playerObj.transform;
+            // Prefer the object that actually carries a PlayerController: a scene can hold more
+            // than one object tagged "Player" (a mis-tagged trigger volume, say), and
+            // FindGameObjectWithTag would then hand back an arbitrary one of them.
+            var controller = FindFirstObjectByType<PlayerController>();
+            if (controller != null)
+            {
+                player = controller.transform;
+            }
+            else
+            {
+                var playerObj = GameObject.FindGameObjectWithTag("Player");
+                if (playerObj != null) player = playerObj.transform;
+            }
         }
 
         BuildWaypoints();

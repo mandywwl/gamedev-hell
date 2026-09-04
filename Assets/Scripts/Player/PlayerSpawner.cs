@@ -16,8 +16,8 @@ public class PlayerSpawner : MonoBehaviour
         // Re-find the player in the newly loaded scene if needed
         if (player == null || !player.gameObject.activeInHierarchy)
         {
-            var found = GameObject.FindGameObjectWithTag("Player");
-            if (found != null) player = found.transform;
+            var found = FindPlayerTransform();
+            if (found != null) player = found;
         }
         if (player == null) return; // no player found; nothing to place
 
@@ -51,5 +51,18 @@ public class PlayerSpawner : MonoBehaviour
         // Else Fallback
         if (defaultSpawn != null)
             player.position = defaultSpawn.position;
+    }
+
+    // A scene can contain more than one object tagged "Player" (e.g. a trigger volume that was
+    // mis-tagged in the editor), and FindGameObjectWithTag returns an arbitrary one of them -
+    // which would teleport that object to the spawn point instead of the player. Prefer the
+    // one that actually carries a PlayerController.
+    private Transform FindPlayerTransform()
+    {
+        var controller = FindFirstObjectByType<PlayerController>();
+        if (controller != null) return controller.transform;
+
+        var tagged = GameObject.FindGameObjectWithTag("Player");
+        return tagged != null ? tagged.transform : null;
     }
 }
