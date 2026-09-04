@@ -69,12 +69,15 @@ public class SceneTransition : MonoBehaviour
             Debug.LogError("SceneTransition: Chromatic Aberration override not found.");
     }
 
-    public void LoadBattleScene(string sceneName)
+    // Returns true if the transition was started, false if one was already running (so
+    // callers can tell a started battle apart from a dropped request).
+    public bool LoadBattleScene(string sceneName)
     {
         if (transitioning)
-            return;
+            return false;
 
         StartCoroutine(BattleTransition(sceneName));
+        return true;
     }
 
     private IEnumerator BattleTransition(string sceneName)
